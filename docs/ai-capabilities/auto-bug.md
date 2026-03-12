@@ -3,7 +3,7 @@ id: auto-bug
 title: Auto-Bug Generator
 sidebar_position: 2
 ---
-
+ 
 # Auto-Bug Generator
 
 Automatically generate a structured, Jira-ready bug report from a failed execution's logs — with a single click.
