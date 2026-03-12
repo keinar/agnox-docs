@@ -1,0 +1,8 @@
+{
+  "label": "AI Capabilities",
+  "position": 3,
+  "link": {
+    "type": "generated-index",
+    "description": "The AI Quality Orchestrator: five intelligent features that help you find bugs faster, detect flakiness, and automate test intelligence."
+  }
+}

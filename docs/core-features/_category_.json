@@ -1,0 +1,8 @@
+{
+  "label": "Core Features",
+  "position": 2,
+  "link": {
+    "type": "generated-index",
+    "description": "Deep-dive guides for every major feature in the Agnox platform."
+  }
+}

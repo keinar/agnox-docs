@@ -1,0 +1,211 @@
+/**
+ * Agnox — Custom Theme
+ * Enterprise AI SaaS: Violet/Blue color scheme
+ */
+
+/* ─────────────────────────────────────────
+   LIGHT MODE
+   ───────────────────────────────────────── */
+:root {
+  --ifm-color-primary: #4e5ba6;
+  --ifm-color-primary-dark: #465194;
+  --ifm-color-primary-darker: #424d8c;
+  --ifm-color-primary-darkest: #364073;
+  --ifm-color-primary-light: #5664b8;
+  --ifm-color-primary-lighter: #5a69c2;
+  --ifm-color-primary-lightest: #6778d6;
+  --ifm-code-font-size: 95%;
+  --docusaurus-highlighted-code-line-bg: rgba(78, 91, 166, 0.1);
+
+  --ifm-font-family-base: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --ifm-heading-font-family: var(--ifm-font-family-base);
+  --ifm-font-size-base: 16px;
+  --ifm-line-height-base: 1.7;
+
+  /* Sidebar */
+  --ifm-sidebar-width: 280px;
+}
+
+/* ─────────────────────────────────────────
+   DARK MODE — Primary experience
+   ───────────────────────────────────────── */
+[data-theme='dark'] {
+  --ifm-color-primary: #6778d6;
+  --ifm-color-primary-dark: #5664b8;
+  --ifm-color-primary-darker: #4e5ba6;
+  --ifm-color-primary-darkest: #364073;
+  --ifm-color-primary-light: #7a8ae0;
+  --ifm-color-primary-lighter: #8d9ce8;
+  --ifm-color-primary-lightest: #a8b4f0;
+  --docusaurus-highlighted-code-line-bg: rgba(103, 120, 214, 0.2);
+
+  --ifm-background-color: #0d1117;
+  --ifm-background-surface-color: #161b22;
+  --ifm-navbar-background-color: #0d1117;
+  --ifm-footer-background-color: #0a0d14;
+  --ifm-toc-border-color: rgba(255, 255, 255, 0.08);
+  --ifm-hr-border-color: rgba(255, 255, 255, 0.08);
+
+  /* Code */
+  --ifm-code-background: rgba(110, 118, 129, 0.2);
+  --prism-background-color: #161b22;
+}
+
+/* ─────────────────────────────────────────
+   NAVBAR
+   ───────────────────────────────────────── */
+.navbar--dark {
+  --ifm-navbar-background-color: #0d1117;
+  --ifm-navbar-shadow: 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+[data-theme='dark'] .navbar {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+/* ─────────────────────────────────────────
+   HERO (global class used by Docusaurus)
+   ───────────────────────────────────────── */
+.hero--primary {
+  background: linear-gradient(135deg, #0a0d14 0%, #0d1117 40%, #131929 100%);
+}
+
+[data-theme='dark'] .hero--primary {
+  background: linear-gradient(135deg, #0a0d14 0%, #0d1117 40%, #131929 100%);
+}
+
+/* ─────────────────────────────────────────
+   CODE BLOCKS
+   ───────────────────────────────────────── */
+[data-theme='dark'] pre {
+  background-color: #161b22 !important;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+}
+
+[data-theme='dark'] code {
+  background-color: rgba(110, 118, 129, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 4px;
+  padding: 0.1em 0.35em;
+}
+
+/* ─────────────────────────────────────────
+   BUTTONS
+   ───────────────────────────────────────── */
+.button--primary {
+  background: linear-gradient(135deg, #4e5ba6 0%, #6778d6 100%);
+  border: none;
+  box-shadow: 0 4px 14px rgba(103, 120, 214, 0.35);
+  transition: all 0.25s ease;
+}
+
+.button--primary:hover {
+  background: linear-gradient(135deg, #5664b8 0%, #7a8ae0 100%);
+  box-shadow: 0 6px 22px rgba(103, 120, 214, 0.5);
+  transform: translateY(-2px);
+}
+
+.button--secondary {
+  border: 1.5px solid var(--ifm-color-primary);
+  background: transparent;
+  color: var(--ifm-color-primary);
+  transition: all 0.25s ease;
+}
+
+[data-theme='dark'] .button--secondary {
+  border-color: rgba(103, 120, 214, 0.5);
+  color: #a8b4f0;
+}
+
+[data-theme='dark'] .button--secondary:hover {
+  background: rgba(103, 120, 214, 0.12);
+  border-color: #6778d6;
+  color: #c5cdff;
+}
+
+/* ─────────────────────────────────────────
+   SIDEBAR
+   ───────────────────────────────────────── */
+[data-theme='dark'] .menu__link--active {
+  background: rgba(103, 120, 214, 0.14);
+  border-left: 3px solid #6778d6;
+  padding-left: calc(var(--ifm-menu-link-padding-horizontal) - 3px);
+}
+
+[data-theme='dark'] .menu__link:hover {
+  background: rgba(103, 120, 214, 0.07);
+}
+
+[data-theme='dark'] .menu__list-item-collapsible:hover {
+  background: rgba(103, 120, 214, 0.07);
+}
+
+/* ─────────────────────────────────────────
+   TABLE OF CONTENTS
+   ───────────────────────────────────────── */
+[data-theme='dark'] .table-of-contents__link--active {
+  color: #6778d6;
+}
+
+/* ─────────────────────────────────────────
+   ADMONITIONS
+   ───────────────────────────────────────── */
+[data-theme='dark'] .alert {
+  border-left-width: 4px;
+}
+
+/* ─────────────────────────────────────────
+   FOOTER
+   ───────────────────────────────────────── */
+.footer--dark {
+  background-color: #0a0d14;
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+/* ─────────────────────────────────────────
+   MARKDOWN CONTENT
+   ───────────────────────────────────────── */
+[data-theme='dark'] .markdown h1,
+[data-theme='dark'] .markdown h2,
+[data-theme='dark'] .markdown h3,
+[data-theme='dark'] .markdown h4 {
+  color: #ffffff;
+}
+
+[data-theme='dark'] .markdown table {
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+[data-theme='dark'] .markdown table th {
+  background: rgba(103, 120, 214, 0.1);
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+[data-theme='dark'] .markdown table td {
+  border-color: rgba(255, 255, 255, 0.06);
+}
+
+[data-theme='dark'] .markdown table tr:hover {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+/* ─────────────────────────────────────────
+   GLOBAL
+   ───────────────────────────────────────── */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Category index pages — clean layout */
+[data-theme='dark'] .generatedIndex article {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 12px;
+  transition: all 0.2s ease;
+}
+
+[data-theme='dark'] .generatedIndex article:hover {
+  background: rgba(103, 120, 214, 0.06);
+  border-color: rgba(103, 120, 214, 0.25);
+}

@@ -1,0 +1,142 @@
+---
+id: organizations
+title: Organizations API
+sidebar_position: 3
+---
+
+# Organizations API
+
+Base URL: `/api/organization`
+
+All organization endpoints require authentication via `Authorization: Bearer <token>`.
+
+---
+
+## GET `/api/organization`
+
+Get current organization details.
+
+**Auth:** All roles
+
+### Response (200 OK)
+
+```json
+{
+  "success": true,
+  "organization": {
+    "id": "507f191e810c19729de860ea",
+    "name": "Acme Corp",
+    "slug": "acme-corp",
+    "plan": "free",
+    "limits": {
+      "maxProjects": 1,
+      "maxTestRuns": 100,
+      "maxUsers": 3,
+      "maxConcurrentRuns": 1
+    },
+    "userCount": 2,
+    "userLimit": 3,
+    "aiAnalysisEnabled": true,
+    "createdAt": "2026-01-15T10:00:00.000Z"
+  }
+}
+```
+
+---
+
+## PATCH `/api/organization`
+
+Update organization settings.
+
+**Auth:** Admin only
+
+### Request Body
+
+```json
+{
+  "name": "New Organization Name",
+  "aiAnalysisEnabled": false
+}
+```
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `name` | string | Organization name (2–100 characters) |
+| `aiAnalysisEnabled` | boolean | Enable/disable AI failure analysis |
+
+### Response (200 OK)
+
+```json
+{
+  "success": true,
+  "message": "Organization settings updated successfully",
+  "organization": { "id": "...", "name": "New Name", "aiAnalysisEnabled": false }
+}
+```
+
+All settings changes are logged to the `audit_logs` collection.
+
+---
+
+## GET `/api/organization/usage`
+
+Get usage statistics for the current billing period.
+
+**Auth:** All roles
+
+### Response (200 OK)
+
+```json
+{
+  "success": true,
+  "usage": {
+    "currentPeriod": {
+      "startDate": "2026-02-01T00:00:00.000Z",
+      "endDate": "2026-02-28T23:59:59.999Z"
+    },
+    "testRuns": { "used": 45, "limit": 100, "percentUsed": 45 },
+    "users": { "active": 2, "limit": 3 },
+    "storage": { "usedBytes": 524288000, "limitBytes": 10737418240 }
+  },
+  "alerts": [
+    {
+      "type": "warning",
+      "resource": "testRuns",
+      "message": "You've used 80% of your monthly test runs",
+      "percentUsed": 80
+    }
+  ]
+}
+```
+
+### Alert Types
+
+| Type | Trigger |
+|------|---------|
+| `info` | 50–79% of limit used |
+| `warning` | 80–99% of limit used |
+| `critical` | 100% reached |
+
+---
+
+## GET `/api/organization/ai-config`
+
+Get AI configuration (model selection and BYOK status).
+
+**Auth:** All roles
+
+---
+
+## PATCH `/api/organization/ai-config`
+
+Update AI configuration (default model, BYOK keys).
+
+**Auth:** Admin only
+
+---
+
+## Related
+
+- [Authentication API →](./authentication)
+- [Users API →](./users)
+- [Invitations API →](./invitations)
