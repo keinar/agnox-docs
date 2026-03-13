@@ -3,10 +3,43 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [3.21.0] — 2026-03-13
+
+### Added
+- **Monday.com Integration** — Full Monday.com item creation from the Investigation Hub and Auto-Bug Generator.
+  - `GET/PUT /api/integrations/monday` — Store and retrieve an encrypted Monday.com API token, `boardId`, and optional `groupId` per organization; token persisted as AES-256-GCM `IEncryptedPayload` and never returned in plaintext.
+  - `POST /api/monday/items` — Create a Monday.com item from any execution; the resulting item ID and URL are written back to `execution.mondayItems[]` for bidirectional linkage.
+  - `MondayProvider.ts` — New worker integration provider in `apps/worker-service/src/integrations/` that creates board items and attaches description updates via Monday.com GraphQL API v2024-01.
+  - `CreateMondayItemModal.tsx` — New frontend modal for creating a Monday.com item directly from the Investigation Hub drawer (rose/LayoutGrid icon).
+  - `IntegrationsTab.tsx` — Monday.com settings card added to **Settings → Connectors** alongside existing GitHub, GitLab, Azure DevOps, Bitbucket, Slack, MS Teams, and Linear cards.
+  - `ExecutionDrawer.tsx` — Monday.com action button rendered for `FAILED`/`ERROR` executions when `integrations.monday.enabled` is `true`.
+  - `AutoBugModal.tsx` — "Submit to Monday.com" button added alongside Jira and Linear; gated on `integrations.monday.enabled`.
+  - `IOrganization.integrations.monday` — New `monday?` sub-document added to `shared-types/index.ts` (`encryptedToken`, `iv`, `authTag`, `enabled`, `boardId`, `groupId?`, `updatedAt?`).
+  - `useOrganizationFeatures` hook — `integrations` object now includes `monday` connection status, `boardId`, and `groupId`.
+- **Generic Outbound Webhook Integration** — Fire-and-forget `execution.finished` event dispatched to any configured HTTPS endpoint when an execution reaches a terminal state.
+  - `webhook-service.ts` — New `sendWebhook()` service in `apps/producer-service/src/services/`. Dispatches a signed JSON payload (`event`, `executionId`, `taskId`, `status`, `summary`, `groupName`, timestamps). Optional `x-agnox-signature: sha256=<hex>` HMAC-SHA256 header when an encrypted secret is configured. 10-second hard timeout; fire-and-forget — never blocks the execution response.
+  - `IOrganization.integrations.webhook` — New `webhook?` sub-document added to `shared-types/index.ts` (`enabled`, `url`, `encryptedSecret?`, `iv?`, `authTag?`).
+  - Organization GET endpoint now returns `webhook.enabled` and `webhook.url` in the integrations response block.
+- **In-App Changelog Modal** — `ChangelogModal.tsx` surfaces the last 5 platform release summaries in a modal with version badges, feature bullets, and a link to the full release history on GitHub.
+
+### Changed
+- `packages/shared-types/index.ts` — `monday?` and `webhook?` blocks added to `IOrganization.integrations`.
+- `apps/producer-service/src/routes/integrations.ts` — `GET/PUT /api/integrations/monday` and `POST /api/monday/items` endpoints added.
+- `apps/producer-service/src/services/webhook-service.ts` — New file.
+- `apps/producer-service/src/routes/organization.ts` — `monday` and `webhook` integration status included in GET org integrations response.
+- `apps/worker-service/src/integrations/MondayProvider.ts` — New file.
+- `apps/dashboard-client/src/components/CreateMondayItemModal.tsx` — New file.
+- `apps/dashboard-client/src/components/AutoBugModal.tsx` — "Submit to Monday.com" button added.
+- `apps/dashboard-client/src/components/ExecutionDrawer.tsx` — Monday.com action button added.
+- `apps/dashboard-client/src/components/ExecutionRow.tsx` — Monday.com-related UI changes.
+- `apps/dashboard-client/src/components/ChangelogModal.tsx` — New file; in-app changelog modal added to dashboard.
+- `apps/dashboard-client/src/hooks/useOrganizationFeatures.ts` — `integrations.monday` and `integrations.webhook` added to hook return shape.
+- `package.json` — Version bumped from `3.20.0` to `3.21.0`.
+
 ## [3.20.0] — 2026-03-13
 
 ### Added
-- **Linear Integration (Phase 1)** — Full bidirectional Linear issue integration across the platform.
+- **Linear Integration** — Full bidirectional Linear issue integration across the platform.
   - `GET/PUT /api/integrations/linear` — Store and retrieve an encrypted Linear API key and `teamId` per organization; key is persisted as an AES-256-GCM `IEncryptedPayload` and never returned in plaintext.
   - `POST /api/linear/issues` — Create a Linear issue from any execution; the resulting issue ID and URL are written back to `execution.linearIssues[]` for bidirectional linkage.
   - `LinearProvider.ts` — New integration provider in `apps/worker-service/src/integrations/` responsible for posting AI analysis reports to Linear issues.
