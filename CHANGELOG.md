@@ -3,6 +3,68 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [3.20.0] — 2026-03-13
+
+### Added
+- **Linear Integration (Phase 1)** — Full bidirectional Linear issue integration across the platform.
+  - `GET/PUT /api/integrations/linear` — Store and retrieve an encrypted Linear API key and `teamId` per organization; key is persisted as an AES-256-GCM `IEncryptedPayload` and never returned in plaintext.
+  - `POST /api/linear/issues` — Create a Linear issue from any execution; the resulting issue ID and URL are written back to `execution.linearIssues[]` for bidirectional linkage.
+  - `LinearProvider.ts` — New integration provider in `apps/worker-service/src/integrations/` responsible for posting AI analysis reports to Linear issues.
+  - `CreateLinearIssueModal.tsx` — New frontend modal for creating a Linear issue directly from the Investigation Hub drawer (indigo Zap icon button).
+  - `IntegrationsTab.tsx` — Linear settings card added to **Settings → Connectors** alongside the existing GitHub, GitLab, Azure DevOps, Bitbucket, Slack, and MS Teams cards.
+  - `ExecutionDrawer.tsx` — Linear action button (indigo/Zap icon) rendered for `FAILED`/`ERROR` executions when `integrations.linear.enabled` is `true`.
+  - `AutoBugModal.tsx` — "Submit to Linear" button added alongside "Submit to Jira"; gated on the `integrations.linear.enabled` flag.
+  - `IOrganization.integrations.linear` — New `linear?` sub-document added to `shared-types/index.ts` (`encryptedToken`, `iv`, `authTag`, `enabled`, `teamId`, `updatedAt?`).
+  - `useOrganizationFeatures` hook — Now returns an `integrations` object containing both `jira` and `linear` connection status.
+
+### Changed
+- `packages/shared-types/index.ts` — `linear?` block added to `IOrganization.integrations`.
+- `apps/producer-service/src/routes/integrations.ts` — `'linear'` added to provider allowlist; `GET/PUT /api/integrations/linear` endpoints added.
+- `apps/producer-service/src/routes/linear.ts` — New route file handling `POST /api/linear/issues`.
+- `apps/producer-service/src/config/routes.ts` — `linearRoutes` registered.
+- `apps/worker-service/src/integrations/LinearProvider.ts` — New file.
+- `apps/worker-service/src/integrations/ProviderFactory.ts` — `LinearProvider` imported and wired in for `'linear'` source executions.
+- `apps/dashboard-client/src/components/settings/IntegrationsTab.tsx` — Linear card added.
+- `apps/dashboard-client/src/components/ExecutionDrawer.tsx` — Linear issue button added.
+- `apps/dashboard-client/src/components/AutoBugModal.tsx` — "Submit to Linear" button added.
+- `apps/dashboard-client/src/components/CreateLinearIssueModal.tsx` — New file.
+- `apps/dashboard-client/src/hooks/useOrganizationFeatures.ts` — `integrations` object added to return shape.
+- `package.json` — Version bumped from `3.19.0` to `3.20.0`.
+
+## [3.19.0] — 2026-03-13
+
+### Added
+- **Bitbucket CI Integration** — `BitbucketProvider.ts` added to `apps/worker-service/src/integrations/`, implementing `ICiProvider` via native `fetch` with Bearer token auth. Posts AI Analysis reports as PR comments to `https://api.bitbucket.org/2.0/repositories/{workspace}/{repo_slug}/pullrequests/{id}/comments` using Bitbucket's `{ content: { raw } }` payload format.
+- **`ProviderFactory` extended** — `case 'bitbucket'` added so the worker dynamically instantiates `BitbucketProvider` for executions sourced from Bitbucket pipelines.
+- **Shared-types updated** — `bitbucket?` integration block (same shape as GitHub/GitLab/Azure: `encryptedToken`, `iv`, `authTag`, `enabled`, `updatedAt?`) added to `IOrganization.integrations`. `'bitbucket'` added to the `source` union on both `ITestCycle.ciContext` and `IIngestCiContext`.
+- **Producer API updated** — `PATCH /api/organization/integrations/:provider` allowlist extended to accept `'bitbucket'`; GET `/api/organization` response now includes `integrations.bitbucket.enabled`.
+- **Bitbucket settings card** — `IntegrationsTab.tsx` gains a full Bitbucket card (Bitbucket logo SVG, `bg-[#0052CC]` brand colour, PAT input, Connected badge, save/error feedback) alongside the existing GitHub, GitLab, and Azure DevOps cards.
+
+### Changed
+- `apps/worker-service/src/integrations/ProviderFactory.ts` — `BitbucketProvider` imported and wired in.
+- `apps/worker-service/src/worker.ts` — type cast for `cycle.ciContext.source` widened to include `'bitbucket'`.
+- `packages/shared-types/index.ts` — `'bitbucket'` added to both `source` union types; `bitbucket?` block added to `IOrganization.integrations`.
+- `apps/producer-service/src/routes/integrations.ts` — provider allowlist updated.
+- `apps/producer-service/src/routes/organization.ts` — `bitbucket.enabled` field included in GET response.
+- `apps/dashboard-client/src/components/settings/IntegrationsTab.tsx` — Bitbucket state, hydration, handler types, label, icon, and brand colour added.
+- `package.json` — Version bumped from `3.18.0` to `3.19.0`.
+
+## [3.18.0] — 2026-03-12
+
+### Added
+- **MS Teams Webhook Notifications** — `notifier.ts` extended with a new `sendTeamsNotification()` function that sends a `MessageCard` to a configured MS Teams Incoming Webhook independently of Slack. The card includes a colour-coded theme bar (green/red/amber), a facts table (status, folder, group name, duration), a truncated AI analysis snippet for FAILED/ERROR executions, and a deep link to the Investigation Hub. A failure to deliver the Teams webhook is fire-and-forget and never blocks execution flow.
+- **MS Teams Organization Fields** — `IOrganization` in `shared-types` extended with `msTeamsWebhookUrl?` and `msTeamsNotificationEvents?` fields. The PATCH `/api/organization` endpoint now accepts both fields: the URL is validated against a strict `*.webhook.office.com/webhookb2/` regex (SSRF protection) and stored AES-256-GCM encrypted; `msTeamsNotificationEvents` defaults to `['FAILED', 'ERROR', 'UNSTABLE']`.
+- **MS Teams Settings UI** — New Microsoft Teams card in `Settings → Integrations` (`IntegrationsTab.tsx`): webhook URL input with masked display for existing URLs, per-status event toggles (PASSED / FAILED / ERROR / UNSTABLE), Connected status badge, and save feedback.
+
+### Changed
+- `apps/producer-service/src/utils/notifier.ts` — `sendExecutionNotification()` now dispatches Slack and MS Teams notifications independently; `resolveWebhookUrl()` helper handles both encrypted `IEncryptedPayload` objects and legacy plaintext strings for both channels.
+- `apps/producer-service/src/routes/organization.ts` — PATCH handler extended with `msTeamsWebhookUrl` and `msTeamsNotificationEvents` fields; GET response masks the stored URL as `••••••••` when set.
+- `packages/shared-types/index.ts` — `msTeamsWebhookUrl?` and `msTeamsNotificationEvents?` added to `IOrganization`.
+- `apps/dashboard-client/src/components/settings/IntegrationsTab.tsx` — MS Teams card added alongside Slack card.
+- `README.md` — Sprint 8 section updated with MS Teams notification entries; project status table and roadmap updated.
+- `PUBLIC_README.md` — Notifications capability row added to the capabilities table.
+- `package.json` — Version bumped from `3.17.1` to `3.18.0`.
+
 ## [3.17.1] — 2026-03-11
 
 ### Changed

@@ -27,7 +27,7 @@ Automatically generate a structured, Jira-ready bug report from a failed executi
    - **Severity** — `critical` / `high` / `medium` / `low`
    - **Code Patches** — file path + suggested fix snippet (where detectable)
 5. Review and edit any field in the **Auto Bug** modal before submitting.
-6. Click **Submit to Jira** to pre-fill the Jira ticket creation modal with the finalized content.
+6. Click **Submit to Jira** to pre-fill the Jira ticket creation modal with the finalized content, or click **Submit to Linear** to open the Linear issue creation modal pre-filled with the AI-generated report (requires Linear integration enabled in **Settings → Connectors**).
 
 ---
 

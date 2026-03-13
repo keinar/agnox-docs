@@ -137,6 +137,8 @@ graph TB
 - `/api/ai/chat` - Feature E: Two-turn quality chatbot (NL → MongoDB pipeline → answer + optional chart)
 - `/api/ai/chat/history` - Feature E: List chat sessions for org
 - `/api/ai/chat/:conversationId` - Feature E: Full message history for a conversation
+- `/api/integrations/linear` - GET/PUT Linear integration credentials (AES-256-GCM encrypted API key + teamId)
+- `/api/linear/issues` - POST: create a Linear issue from an execution; writes back to `execution.linearIssues[]`
 
 ---
 

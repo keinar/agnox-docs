@@ -47,9 +47,11 @@ Receive Slack messages whenever a test run completes — with AI analysis snippe
 
 The **Connectors** settings page also shows connection status for:
 - **Jira** — create tickets directly from the Investigation Hub
+- **Linear** — create Linear issues from the Investigation Hub or from the Auto Bug modal; bidirectional linkage stored in `execution.linearIssues[]`
 - **GitHub** — CI context and PR linking
 - **GitLab** — CI context and MR linking
 - **Azure DevOps** — CI context
+- **Bitbucket** — CI context and PR comment posting
 
 A **Connected** badge appears when valid credentials have been securely stored for each connector.
 

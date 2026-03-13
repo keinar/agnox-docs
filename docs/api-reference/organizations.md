@@ -135,6 +135,88 @@ Update AI configuration (default model, BYOK keys).
 
 ---
 
+## GET `/api/integrations/linear`
+
+Get current Linear integration status for the organization.
+
+**Auth:** All roles
+
+### Response (200 OK)
+
+```json
+{
+  "success": true,
+  "data": {
+    "enabled": true,
+    "teamId": "TEAM-abc123"
+  }
+}
+```
+
+The stored API key is never returned in plaintext. `enabled` is `true` once a valid key has been saved.
+
+---
+
+## PUT `/api/integrations/linear`
+
+Store or update the Linear API key and team ID.
+
+**Auth:** Admin only
+
+### Request Body
+
+```json
+{
+  "apiKey": "lin_api_...",
+  "teamId": "TEAM-abc123"
+}
+```
+
+The `apiKey` is encrypted at rest using AES-256-GCM before being stored. Setting `enabled: false` explicitly disables the integration without removing the stored credentials.
+
+### Response (200 OK)
+
+```json
+{
+  "success": true,
+  "message": "Linear integration saved successfully"
+}
+```
+
+---
+
+## POST `/api/linear/issues`
+
+Create a Linear issue from an execution and record the link bidirectionally.
+
+**Auth:** All roles (JWT required)
+
+### Request Body
+
+```json
+{
+  "taskId": "execution-task-id",
+  "title": "Login test fails on staging",
+  "description": "## Root Cause\n..."
+}
+```
+
+### Response (201 Created)
+
+```json
+{
+  "success": true,
+  "data": {
+    "issueId": "ABC-123",
+    "issueUrl": "https://linear.app/myteam/issue/ABC-123"
+  }
+}
+```
+
+The `issueId` and `issueUrl` are appended to `execution.linearIssues[]` in MongoDB for bidirectional traceability.
+
+---
+
 ## Related
 
 - [Authentication API →](./authentication)
