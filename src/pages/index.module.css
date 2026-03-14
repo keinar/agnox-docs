@@ -102,6 +102,123 @@
 }
 
 /* ─────────────────────────────────────────
+   INTEGRATIONS SECTION — INFINITE MARQUEE
+   ───────────────────────────────────────── */
+@keyframes scroll {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.integrationsSection {
+  padding: 4rem 0 3.5rem;
+  background: linear-gradient(180deg, #0a0d14 0%, #0d1117 100%);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  text-align: center;
+}
+
+.integrationsSectionTitle {
+  font-size: 1.5rem !important;
+  font-weight: 700 !important;
+  color: rgba(255, 255, 255, 0.75) !important;
+  letter-spacing: -0.01em !important;
+  margin-bottom: 2.5rem !important;
+}
+
+/* Fade edges, clip overflow */
+.marqueeWrapper {
+  overflow: hidden;
+  display: flex;
+  mask-image: linear-gradient(
+    to right,
+    transparent 0%,
+    black 10%,
+    black 90%,
+    transparent 100%
+  );
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent 0%,
+    black 10%,
+    black 90%,
+    transparent 100%
+  );
+  margin-bottom: 2rem;
+}
+
+/* Scrolling belt — two identical groups side-by-side */
+.marqueeTrack {
+  display: flex;
+  width: max-content;
+  animation: scroll 30s linear infinite;
+}
+
+.marqueeTrack:hover {
+  animation-play-state: paused;
+}
+
+/* One copy of the logo set */
+.marqueeGroup {
+  display: flex;
+  flex-shrink: 0;
+  gap: 4rem;
+  align-items: center;
+  padding-right: 4rem;
+}
+
+/* Dark mode: logos → pure white at 50% opacity, full on hover */
+.integrationLogo {
+  height: 56px;
+  width: auto;
+  display: block;
+  flex-shrink: 0;
+  filter: brightness(0) invert(1) opacity(0.5);
+  transition: filter 0.3s ease;
+}
+
+.integrationLogo:hover {
+  filter: brightness(0) invert(1) opacity(1);
+}
+
+.integrationsFootnote {
+  font-size: 0.875rem;
+  color: rgba(255, 255, 255, 0.38);
+  max-width: 520px;
+  margin: 0 auto;
+  line-height: 1.7;
+}
+
+.integrationsFootnote strong {
+  color: rgba(168, 180, 240, 0.7);
+}
+
+/* ── Light mode overrides ── */
+[data-theme='light'] .integrationsSection {
+  background: linear-gradient(180deg, #f0f2ff 0%, #f8f9fc 100%);
+  border-bottom-color: rgba(0, 0, 0, 0.07);
+}
+
+[data-theme='light'] .integrationsSectionTitle {
+  color: rgba(26, 31, 54, 0.7) !important;
+}
+
+/* Light mode: logos → dark/black tint */
+[data-theme='light'] .integrationLogo {
+  filter: brightness(0) opacity(0.45);
+}
+
+[data-theme='light'] .integrationLogo:hover {
+  filter: brightness(0) opacity(0.8);
+}
+
+[data-theme='light'] .integrationsFootnote {
+  color: rgba(0, 0, 0, 0.4);
+}
+
+[data-theme='light'] .integrationsFootnote strong {
+  color: rgba(78, 91, 166, 0.8);
+}
+
+/* ─────────────────────────────────────────
    QUICK ACCESS CARDS
    ───────────────────────────────────────── */
 .quickAccess {

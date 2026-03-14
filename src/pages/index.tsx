@@ -40,6 +40,71 @@ function HomepageHeader() {
   );
 }
 
+type IntegrationLogo = {
+  name: string;
+  src: string;
+  alt: string;
+};
+
+const IntegrationLogos: IntegrationLogo[] = [
+  { name: 'Slack', src: '/img/integrations/slack.svg', alt: 'Slack' },
+  { name: 'MS Teams', src: '/img/integrations/teams.svg', alt: 'Microsoft Teams' },
+  { name: 'Jira', src: '/img/integrations/jira.svg', alt: 'Jira' },
+  { name: 'Linear', src: '/img/integrations/linear.svg', alt: 'Linear' },
+  { name: 'Monday.com', src: '/img/integrations/monday.svg', alt: 'Monday.com' },
+  { name: 'Bitbucket', src: '/img/integrations/Bitbucket.svg', alt: 'Bitbucket' },
+  { name: 'GitHub Actions', src: '/img/integrations/github.svg', alt: 'GitHub Actions' },
+  { name: 'GitLab', src: '/img/integrations/gitlab.svg', alt: 'GitLab' },
+  { name: 'Azure DevOps', src: '/img/integrations/azure-devops.svg', alt: 'Azure DevOps' },
+];
+
+function IntegrationsSection(): ReactNode {
+  return (
+    <section className={styles.integrationsSection}>
+      <div className="container">
+        <p className={styles.integrationsSectionTitle}>
+          Seamlessly integrates with your workflow
+        </p>
+      </div>
+
+      {/* Full-bleed marquee (outside container so it spans the full viewport width) */}
+      <div className={styles.marqueeWrapper}>
+        <div className={styles.marqueeTrack}>
+          {/* Group 1 — real */}
+          <div className={styles.marqueeGroup}>
+            {IntegrationLogos.map((logo) => (
+              <img
+                key={logo.name}
+                src={logo.src}
+                alt={logo.alt}
+                className={styles.integrationLogo}
+              />
+            ))}
+          </div>
+          {/* Group 2 — duplicate for seamless looping */}
+          <div className={styles.marqueeGroup} aria-hidden="true">
+            {IntegrationLogos.map((logo) => (
+              <img
+                key={logo.name}
+                src={logo.src}
+                alt={logo.alt}
+                className={styles.integrationLogo}
+              />
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <div className="container">
+        <p className={styles.integrationsFootnote}>
+          …and seamlessly connect to any other internal tool using{' '}
+          <strong>Generic Webhooks</strong>.
+        </p>
+      </div>
+    </section>
+  );
+}
+
 type QuickCard = {
   icon: string;
   title: string;
@@ -328,6 +393,7 @@ export default function Home(): ReactNode {
     >
       <HomepageHeader />
       <main>
+        <IntegrationsSection />
         <QuickAccess />
         <HomepageFeatures />
         <PlatformStats />
