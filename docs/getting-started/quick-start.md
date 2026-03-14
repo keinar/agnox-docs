@@ -35,6 +35,30 @@ npx @agnox/agnox-cli@latest init
 
 The CLI detects your framework, browser channels, and system dependencies — then builds and pushes a multi-platform Docker image to Docker Hub automatically.
 
+:::info Enterprise: Private Registries
+Enterprise teams often store automation images in a **private container registry** — AWS ECR, GitHub Container Registry (GHCR), Google Artifact Registry (GAR), or a self-hosted registry — rather than public Docker Hub. This is the recommended approach for protecting proprietary test code and enforcing access control.
+
+Append the `-r` / `--registry` flag to `init` with your registry host:
+
+```bash
+# GitHub Container Registry
+npx @agnox/agnox-cli@latest init -r ghcr.io
+
+# AWS Elastic Container Registry
+npx @agnox/agnox-cli@latest init -r 123456789012.dkr.ecr.us-east-1.amazonaws.com
+
+# Google Artifact Registry
+npx @agnox/agnox-cli@latest init -r us-docker.pkg.dev/my-project/my-repo
+```
+
+The CLI will automatically:
+1. **Prompt for credentials** and perform `docker login` against the target registry (including credential-helper flows for ECR and GAR).
+2. **Tag the built image** with the correct fully-qualified registry path.
+3. **Push the image** — no manual `docker tag` or `docker push` steps required.
+
+After the push, enter the fully-qualified image name (e.g. `ghcr.io/my-org/my-automation:latest`) in **Settings → Run Settings → Docker Image** as you would with any other image.
+:::
+
 ---
 
 ## Option B: Manual Docker Setup (Agnox Hosted)

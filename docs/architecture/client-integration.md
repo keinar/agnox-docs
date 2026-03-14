@@ -28,6 +28,16 @@ This interactive tool will:
 
 **Supported frameworks:** Playwright (TypeScript/Node.js) and Pytest (Python).
 
+:::tip Enterprise: Private Registries
+If your organization uses a private container registry (AWS ECR, GHCR, Google GAR, or self-hosted) instead of Docker Hub, append the `-r` / `--registry` flag to securely authenticate, tag, and push your image in one step:
+
+```bash
+npx @agnox/agnox-cli@latest init -r ghcr.io
+```
+
+The CLI handles `docker login` and image tagging automatically — no manual `docker tag` or `docker push` required.
+:::
+
 📦 **CLI Repository:** [github.com/agnox/agnox-cli](https://github.com/agnox/agnox-cli) ·· **npm:** [@agnox/agnox-cli](https://www.npmjs.com/package/@agnox/agnox-cli)
 
 ---
