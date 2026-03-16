@@ -37,6 +37,7 @@ Agnox sits between your CI/CD pipeline and your test framework, bringing everyth
 | **Test Optimizer** | A dual-agent analyzer rewrites test cases into clean BDD format and removes duplicate steps |
 | **Quality Chatbot** | Ask natural-language questions about your test data — powered by a sanitized, AI-generated aggregation pipeline |
 | **Auto Bug Generation** | One click generates a structured bug report pre-filled with the AI's root cause analysis, ready to submit to Jira, Linear, or Monday.com |
+| **Spec-to-Test Generation** | Upload a PDF, DOCX, or Markdown spec — a 4-stage agentic pipeline (Extractor → Generator → Critic → Formatter) streams progress via SSE and generates draft test cases directly into your suite |
 | **Framework-Agnostic** | Bring your own Docker image — Playwright, Cypress, Pytest, JUnit, Selenium, or any custom framework |
 | **Multi-Tenant SaaS** | Complete data isolation, RBAC, and per-organization quotas and billing |
 | **Notifications** | Configurable Slack and MS Teams webhooks deliver colour-coded execution summaries with AI analysis snippets and deep links to the Investigation Hub — each channel is independent and per-status configurable |

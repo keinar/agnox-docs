@@ -56,24 +56,29 @@ Manage your subscription in **Settings → Billing & Plans**.
 
 ### Plan Comparison
 
-| Feature | Free | Team | Enterprise |
-|---------|------|------|------------|
-| **Test Runs/Month** | 100 | 1,000 | Unlimited |
-| **Projects** | 1 | 10 | Unlimited |
-| **Team Members** | 3 | 20 | Unlimited |
-| **Concurrent Runs** | 1 | 5 | 20 |
-| **Storage** | 1 GB | 10 GB | 100 GB |
-| **AI Analysis** | ✅ | ✅ | ✅ |
+| Feature | Free | Starter | Team | Business | Enterprise |
+|---------|------|---------|------|----------|------------|
+| **Price** | $0/mo | $29/mo | $99/mo | $299/mo | Custom |
+| **Test Runs/Month** | 50 | 250 | 1,000 | 2,500 | Unlimited |
+| **Projects** | 1 | 3 | Unlimited | Unlimited | Unlimited |
+| **Team Members** | 3 | 5 | 20 | 100 | Unlimited |
+| **Concurrent Runs** | 1 | 2 | 5 | 15 | Unlimited |
+| **Storage** | 500 MB | 2 GB | 10 GB | 50 GB | 500 GB |
+| **Full AI Engine** | ✅ | ✅ | ✅ | ✅ | ✅ |
+| **All Integrations** | ✅ | ✅ | ✅ | ✅ | ✅ |
+| **Audit Logs** | — | — | — | ✅ | ✅ |
+| **SSO** | — | — | — | — | ✅ |
+| **Support** | Community | Email | Email | Priority | Dedicated 24/7 |
 
-### Pricing
+> Limits are enforced automatically by the backend. Upgrading takes effect immediately.
 
-| Plan | Price |
-|------|-------|
-| **Free** | $0/month |
-| **Team** | $99/month |
-| **Enterprise** | $499/month |
+### Storage Tracking
 
-> Limits are enforced automatically. Upgrading takes effect immediately.
+Agnox tracks your data usage in real time:
+- **Live tracking:** every execution finish atomically increments your organisation's storage counter.
+- **Nightly reconciliation:** a background job runs at **02:00 UTC** using MongoDB `$bsonSize` aggregation to correct any drift from deletions or failed increments.
+
+When your storage limit is reached, new execution requests are blocked with a `429 Storage limit exceeded` response until storage is freed or you upgrade.
 
 ### Upgrading
 

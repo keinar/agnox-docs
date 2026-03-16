@@ -45,6 +45,17 @@ Click any cycle row in the table to expand and see all its items:
 
 > The cycle status automatically transitions to **COMPLETED** when all items — both manual and automated — reach a terminal state.
 
+**Re-marking steps:** While a cycle is `RUNNING`, QA engineers can re-open a completed manual item and change step results. Once a cycle reaches `COMPLETED`, it becomes read-only.
+
+---
+
+## Deleting a Cycle
+
+Click the delete icon on any cycle row and confirm the dialog.
+
+- If the cycle is **RUNNING**, deletion is blocked (`409 Conflict`) — wait for completion or let the automated items finish first.
+- **PENDING** and **COMPLETED** cycles are permanently deleted.
+
 ---
 
 ## CI/CD Trigger Integration

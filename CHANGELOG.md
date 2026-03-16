@@ -3,6 +3,40 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [3.22.0] — 2026-03-16
+
+### Added
+- **Global Project Selector (v5.0)** — `ProjectContext.tsx` provides a platform-wide `activeProjectId` persisted in `localStorage`. A project dropdown in `DashboardHeader.tsx` (and a mobile mirror in `Sidebar.tsx`) synchronises the context, URL `?project=` param, and all data-fetching hooks simultaneously. All executions, test cases, test cycles, analytics KPIs, grouped execution views, and the execution modal now filter strictly by `activeProjectId`. Migration 013 backfills `projectId` on all legacy executions, test_cases, and test_cycles records.
+- **5-Tier Billing Model** — Plans expanded from 3 tiers (Free/Team/Enterprise) to 5 (Free/Starter/Business/Team/Enterprise). Canonical limits are now enforced from `plans.ts` as the single source of truth (`getCanonicalLimits()` helper); stale DB-stored limits are always overridden at query time.
+  - Free: 50 runs/mo, 1 project, 3 users, 1 concurrent, 500 MB storage
+  - Starter: $29/mo — 250 runs, 3 projects, 5 users, 2 concurrent, 2 GB
+  - Team: $99/mo — 1,000 runs, unlimited projects, 20 users, 5 concurrent, 10 GB
+  - Business: $299/mo — 2,500 runs, unlimited projects, 100 users, 15 concurrent, 50 GB, audit logs
+  - Enterprise: Custom — unlimited, SSO, dedicated support, 500 GB
+- **Storage Tracking (Dual Mechanism)** — Mechanism A: worker atomically `$inc`s `limits.currentStorageUsedBytes` on every execution finish. Mechanism B: `jobs/storage-reconciler.ts` nightly cron (02:00 UTC) recalculates true byte usage via MongoDB `$bsonSize` aggregation and corrects any drift. `enforceStorageLimit` preHandler added to `POST /api/execution-request`.
+- **AI Spec-to-Test Generation (Feature F)** — `POST /api/ai/spec-to-tests` SSE streaming endpoint guarded by `specToTest` feature flag. Accepts multipart upload (PDF via `pdf-parse`, DOCX via `mammoth`, or Markdown/text, max 10 MB). Runs a 4-stage agentic pipeline: Stage 1 Extractor → Stage 2 Generator → Stage 3 Critic (dedup via MongoDB `$text` search + LLM grounding) → Stage 4 Formatter. SSE events stream per-stage progress and the final `complete` payload. Frontend: `SpecToTestModal.tsx` 3-step wizard (upload → live progress → review/import). Imports tests in 50-case chunks via `POST /api/test-cases/bulk`. "Import from Spec" button visible in Test Cases page when flag is enabled.
+- **Bulk & Suite Deletion for Test Cases** — `DELETE /api/test-cases/bulk` (up to 100 IDs) and `DELETE /api/test-cases/suite` (all cases in a suite) added. Frontend shows an amber warning modal when any AUTOMATED test case is in the deletion selection.
+- **Test Cycle Deletion** — `DELETE /api/test-cycles/:id` — returns 409 if cycle is currently `RUNNING`; hard-deletes otherwise. Confirmation dialog in `TestCycles.tsx`.
+- **ManualExecutionDrawer re-marking** — `isEditable` prop allows QA engineers to re-mark steps while a cycle is `RUNNING`; completed cycles remain read-only.
+- **Integration Unlinking** — `DELETE /api/integrations/:provider` (Admin only) `$unset`s encrypted credentials from the org document. `IntegrationsTab.tsx` gains unlink buttons with a confirmation modal for all configured providers.
+- **Active Projects metric** — `UsageTab.tsx` gains a 4th metric card (Active Projects with limit). `GET /api/organization/usage` now returns `projects: { used, limit }`.
+- **Spec-to-Test feature flag toggle** — `FeaturesTab.tsx` gains a Spec-to-Test Generation row under AI Features.
+- **`SecurityTab` renamed to `AiModelsTab`** — Settings tab ID changed from `security` to `ai-models`; displayed label changed to "AI Models".
+
+### Changed
+- `packages/shared-types/index.ts` — `IAiFeatureFlags.specToTest` added; `OrganizationPlan` union expanded to `'free' | 'starter' | 'team' | 'business' | 'enterprise'`; `IOrganization.limits` gains `maxStorageBytes` and `currentStorageUsedBytes`.
+- `apps/producer-service/src/config/plans.ts` — `maxStorage` renamed to `maxStorageBytes`; `starter` and `business` tiers added; `isUpgrade` order map extended.
+- `migrations/011-add-spec-to-test-flag.ts` — backfills `aiFeatures.specToTest = false` and adds `$text` index on `test_cases.title`.
+- `migrations/012-pricing-tiers.ts` — backfills per-tier `maxStorageBytes` and actual `currentStorageUsedBytes` via `$bsonSize` for all orgs.
+- `migrations/013-assign-default-projects.ts` — backfills `projectId` on all executions, test_cases, and test_cycles records per org.
+
+## [3.21.1] — 2026-03-16
+
+### Changed
+- `docs/integrations/webhooks.md` — Removed ghost features (multiple endpoints, retry logic, delivery log, configurable triggers, send-test-event) that were never implemented; corrected payload schema to flat shape matching `webhook-service.ts`; clarified single-webhook-per-org, fire-and-forget behaviour.
+- `docs/integrations/monday.md` — Removed ghost features (automatic on-finish triggering, re-run status updates, column mapping, configurable trigger statuses); updated description to reflect manual item creation from Investigation Hub and Auto-Bug Generator.
+- `PROJECT_CONTEXT.md` — Bumped version header from 3.20.0 to 3.21.1; updated current phase; added MondayProvider.ts, CreateMondayItemModal.tsx, ChangelogModal.tsx, webhook-service.ts to component inventory.
+
 ## [3.21.0] — 2026-03-13
 
 ### Added

@@ -6,7 +6,7 @@ sidebar_position: 9
 
 # Monday.com Integration
 
-Connect Agnox to Monday.com to automatically create board items and post execution status updates after every test run — keeping your project board in sync with your CI quality signal.
+Connect Agnox to Monday.com to create board items on demand from the Investigation Hub or the Auto-Bug Generator — keeping your project board in sync with your test failure triage workflow.
 
 ---
 
@@ -14,10 +14,8 @@ Connect Agnox to Monday.com to automatically create board items and post executi
 
 | Feature | Description |
 |---------|-------------|
-| **Automatic item creation** | Creates a new item on your board when an execution fails |
-| **Status updates** | Posts an update to an existing item when a re-run changes status |
-| **Column mapping** | Maps Agnox execution fields to your board columns (status, date, URL) |
-| **Configurable triggers** | Choose which statuses (`FAILED`, `ERROR`, `UNSTABLE`) create items |
+| **On-demand item creation** | Create a board item from any failed execution via the Investigation Hub drawer or the Auto-Bug Generator |
+| **Bidirectional linkage** | The resulting item ID and URL are written back to `execution.mondayItems[]` for traceability |
 
 ---
 
@@ -59,7 +57,6 @@ Monday personal tokens have full access to all boards the user can see. Use a de
 | **API Token** | The v2 token from Step 1 |
 | **Board ID** | Numeric board ID from Step 2 |
 | **Group ID** | *(Optional)* Pin new items to a specific group (e.g. `"this_week"`) |
-| **Notify on** | Multi-select: `FAILED`, `ERROR`, `UNSTABLE` |
 
 4. Click **Save**. The card displays a **Connected** badge after validation.
 
@@ -67,20 +64,7 @@ Monday personal tokens have full access to all boards the user can see. Use a de
 
 ## What Gets Created
 
-When a monitored execution finishes, Agnox calls the Monday GraphQL API and creates an item with these fields:
-
-```
-Item name:   [FAILED] My Test Suite — Run #42
-Status col:  Failed
-Date col:    2026-03-14
-URL col:     https://app.agnox.dev/executions/<id>
-```
-
-If the same execution is later re-run and passes, Agnox posts an **update** (comment) on the existing item rather than creating a duplicate.
-
-:::tip Column mapping
-Agnox looks for columns named `Status`, `Date`, and `Link` by default. Rename your board columns to match, or contact support for custom column ID mapping.
-:::
+When you click **Create Monday Item** from the Investigation Hub drawer or the Auto-Bug Generator, Agnox calls the Monday GraphQL API (v2024-01) and creates an item with the execution's AI-generated bug report content. The resulting item ID and URL are stored on the execution (`mondayItems[]`) so you can navigate directly from the dashboard to the board item.
 
 ---
 

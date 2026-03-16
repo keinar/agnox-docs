@@ -15,10 +15,8 @@ Send Agnox execution payloads to any HTTP endpoint — your own microservice, a 
 | Feature | Description |
 |---------|-------------|
 | **Universal delivery** | POST to any HTTPS endpoint after every execution completes |
-| **HMAC SHA-256 signing** | Each request includes an `X-Agnox-Signature` header for verification |
-| **Configurable triggers** | Filter by execution status (`PASSED`, `FAILED`, `ERROR`, `UNSTABLE`) |
-| **Retry logic** | Up to 3 retries with exponential back-off on non-2xx responses |
-| **Multiple endpoints** | Register more than one webhook per organisation |
+| **HMAC SHA-256 signing** | Each request includes an `x-agnox-signature` header for verification |
+| **Fire-and-forget** | Non-blocking — Agnox dispatches the payload with a 10-second hard timeout and does not retry |
 
 ---
 
@@ -32,17 +30,15 @@ Send Agnox execution payloads to any HTTP endpoint — your own microservice, a 
 ## Step 1 — Configure in Agnox
 
 1. In the Agnox dashboard, go to **Settings → Connectors**.
-2. Find the **Webhooks** card and click **Add Webhook**.
+2. Find the **Webhooks** card and click **Configure**.
 3. Fill in the fields:
 
 | Field | Value |
 |-------|-------|
 | **Endpoint URL** | Your HTTPS endpoint (e.g. `https://hooks.example.com/agnox`) |
-| **Secret** | A random string you generate — used to compute the signature |
-| **Notify on** | Multi-select: `PASSED`, `FAILED`, `ERROR`, `UNSTABLE` |
-| **Description** | *(Optional)* Label shown in the Connectors list |
+| **Secret** | *(Optional)* A random string used to compute the HMAC-SHA256 signature |
 
-4. Click **Save**. Agnox sends a `POST` with an empty `ping` payload to verify reachability.
+4. Click **Save**.
 
 :::tip Generating a strong secret
 Use a cryptographically random string of at least 32 characters:
@@ -59,25 +55,14 @@ Every webhook POST has the following shape:
 
 ```json
 {
-  "event": "execution.completed",
-  "timestamp": "2026-03-14T12:00:00.000Z",
-  "organizationId": "org_abc123",
-  "data": {
-    "executionId": "exec_xyz789",
-    "status": "FAILED",
-    "testsPassed": 42,
-    "testsFailed": 3,
-    "testsSkipped": 1,
-    "durationMs": 251400,
-    "executionUrl": "https://app.agnox.dev/executions/exec_xyz789",
-    "cycleId": "cycle_def456",
-    "ciContext": {
-      "source": "github",
-      "repository": "my-org/my-repo",
-      "prNumber": 99,
-      "commitSha": "a1b2c3d4"
-    }
-  }
+  "event": "execution.finished",
+  "executionId": "exec_xyz789",
+  "taskId": "task_abc123",
+  "status": "FAILED",
+  "summary": "3 tests failed in My Test Suite",
+  "groupName": "my-test-group",
+  "startedAt": "2026-03-14T11:56:00.000Z",
+  "finishedAt": "2026-03-14T12:00:00.000Z"
 }
 ```
 
@@ -91,7 +76,7 @@ Agnox computes the signature as:
 HMAC-SHA256(secret, rawRequestBody)
 ```
 
-and sends it in the `X-Agnox-Signature` header as a hex digest. Verify it on your server before processing the payload.
+and sends it in the `x-agnox-signature` header in the format `sha256=<hex>`. Verify it on your server before processing the payload.
 
 ### Node.js Example
 
@@ -148,31 +133,13 @@ Parse the JSON **after** verification. Computing the HMAC over a re-serialised o
 
 ---
 
-## Retry Behaviour
-
-| Attempt | Delay |
-|---------|-------|
-| 1st retry | 10 seconds |
-| 2nd retry | 30 seconds |
-| 3rd retry | 90 seconds |
-
-After 3 failed attempts, the delivery is marked as **failed** and visible in **Settings → Connectors → Webhook Delivery Log**.
-
----
-
-## Testing Your Endpoint
-
-Use the **Send Test Event** button in the Webhooks card to fire a `ping` event at any time without triggering a real execution.
-
----
-
 ## Troubleshooting
 
 | Issue | Likely Cause |
 |-------|-------------|
 | `Signature mismatch` | Secret doesn't match, or you're verifying against a parsed body instead of the raw bytes |
-| `Timeout` | Your endpoint took longer than 10 s — offload heavy processing to a background job |
-| All retries failed | Endpoint returned non-2xx — check your server logs and the Delivery Log in Agnox |
+| No delivery received | Your endpoint took longer than 10 s (hard timeout) — offload heavy processing to a background job |
+| Payload received but no signature header | No secret was configured — set one in **Settings → Connectors → Webhooks** to enable signing |
 
 ---
 
