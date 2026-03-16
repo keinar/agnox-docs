@@ -138,3 +138,5 @@ Clients are automatically joined to `org:<organizationId>` — events are broadc
 | **AI** | `/api/ai/*` | — |
 | **Schedules** | `/api/schedules` | — |
 | **Projects** | `/api/projects/:id/env` | — |
+| **Integrations** | `/api/integrations/:provider`, `/api/linear/issues`, `/api/monday/items` | — |
+| **PR Routing Webhook** | `/api/webhooks/ci/pr` | — |

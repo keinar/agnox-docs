@@ -98,7 +98,15 @@ See [Native Playwright Reporter →](./playwright-reporter) for configuration de
 
 ## Smart PR Routing
 
-Enable **Smart PR Routing** in **Settings → Features** to have Agnox automatically determine which test folder to run based on the files changed in a push. See [Smart PR Routing →](../ai-capabilities/pr-routing) for webhook setup.
+Enable **Smart PR Routing** in **Settings → Features** to have Agnox automatically determine which test folder to run based on the files changed in a push.
+
+When configuring the webhook URL, append `&projectId=<projectId>` to ensure the correct project's run settings are used — this is **highly recommended** for multi-project organizations:
+
+```
+https://api.agnox.dev/api/webhooks/ci/pr?token=<orgId>&projectId=<projectId>
+```
+
+Without `projectId`, the endpoint falls back to the oldest project in the organization. See [Smart PR Routing →](../ai-capabilities/pr-routing) for full webhook setup instructions.
 
 ---
 

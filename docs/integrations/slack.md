@@ -48,6 +48,9 @@ Receive Slack messages whenever a test run completes — with AI analysis snippe
 The **Connectors** settings page also shows connection status for:
 - **Jira** — create tickets directly from the Investigation Hub
 - **Linear** — create Linear issues from the Investigation Hub or from the Auto Bug modal; bidirectional linkage stored in `execution.linearIssues[]`
+- **Monday.com** — create board items from the Investigation Hub or Auto-Bug Generator; bidirectional linkage in `execution.mondayItems[]`
+- **MS Teams** — independent Incoming Webhook notifications; per-status toggles; colour-coded `MessageCard` format
+- **Generic Webhook** — fire-and-forget `execution.finished` POST to any HTTPS endpoint with optional HMAC-SHA256 signing
 - **GitHub** — CI context and PR linking
 - **GitLab** — CI context and MR linking
 - **Azure DevOps** — CI context

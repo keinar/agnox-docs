@@ -30,9 +30,11 @@ Get current organization details.
     "plan": "free",
     "limits": {
       "maxProjects": 1,
-      "maxTestRuns": 100,
+      "maxTestRuns": 50,
       "maxUsers": 3,
-      "maxConcurrentRuns": 1
+      "maxConcurrentRuns": 1,
+      "maxStorageBytes": 524288000,
+      "currentStorageUsedBytes": 0
     },
     "userCount": 2,
     "userLimit": 3,
@@ -180,6 +182,95 @@ The `apiKey` is encrypted at rest using AES-256-GCM before being stored. Setting
 {
   "success": true,
   "message": "Linear integration saved successfully"
+}
+```
+
+---
+
+## GET `/api/integrations/monday`
+
+Get current Monday.com integration status.
+
+**Auth:** All roles
+
+### Response (200 OK)
+
+```json
+{
+  "success": true,
+  "data": {
+    "enabled": true,
+    "boardId": "12345678",
+    "groupId": "topics"
+  }
+}
+```
+
+---
+
+## PUT `/api/integrations/monday`
+
+Store or update the Monday.com API token, board ID, and optional group ID.
+
+**Auth:** Admin only
+
+### Request Body
+
+```json
+{
+  "apiKey": "eyJhbGciOiJIUzI1NiJ9...",
+  "boardId": "12345678",
+  "groupId": "topics"
+}
+```
+
+---
+
+## POST `/api/monday/items`
+
+Create a Monday.com board item from an execution.
+
+**Auth:** All roles (JWT required)
+
+### Request Body
+
+```json
+{
+  "taskId": "execution-task-id",
+  "title": "Login test fails on staging"
+}
+```
+
+### Response (201 Created)
+
+```json
+{
+  "success": true,
+  "data": {
+    "itemId": "987654321",
+    "itemUrl": "https://myteam.monday.com/boards/12345678/pulses/987654321"
+  }
+}
+```
+
+The `itemId` and `itemUrl` are appended to `execution.mondayItems[]` in MongoDB.
+
+---
+
+## DELETE `/api/integrations/:provider`
+
+Unlink an integration by removing its stored credentials from the organization.
+
+**Auth:** Admin only
+
+**Supported providers:** `github`, `gitlab`, `azuredevops`, `bitbucket`, `jira`, `linear`, `monday`, `slack`
+
+### Response (200 OK)
+
+```json
+{
+  "success": true,
+  "message": "Integration unlinked successfully"
 }
 ```
 

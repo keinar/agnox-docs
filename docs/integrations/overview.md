@@ -81,7 +81,7 @@ Every secret you store in Agnox (API tokens, webhook URLs, signing keys) is encr
 <div style={{border: '1px solid var(--ifm-color-emphasis-300)', borderRadius: '8px', padding: '1.25rem', minWidth: '220px', flex: '1'}}>
   <img src="/img/integrations/teams.svg" width="80" style={{marginBottom: '0.5rem'}} alt="Microsoft Teams" />
   <h4 style={{margin: '0 0 0.4rem'}}>Microsoft Teams</h4>
-  <p style={{margin: 0, fontSize: '0.9rem'}}>Post Adaptive Card notifications to any Teams channel using an Incoming Webhook URL.</p>
+  <p style={{margin: 0, fontSize: '0.9rem'}}>Post colour-coded MessageCard notifications to any Teams channel using an Incoming Webhook URL. Supports per-status toggles and AI analysis snippets.</p>
   <a href="./ms-teams">Configure →</a>
 </div>
 

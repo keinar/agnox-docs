@@ -4,9 +4,9 @@ title: Deployment Guide
 sidebar_position: 2
 ---
 
-**Version:** 3.5.0
-**Date:** February 27, 2026
-**Phase:** Multi-Tenant SaaS — Automated Docker Lifecycle & Reliability
+**Version:** 3.23.0
+**Date:** 2026-03-17
+**Phase:** v5.0 — Global Project Selector, 5-Tier Billing, Spec-to-Test AI
 **Status:** ✅ **PRODUCTION READY**
 
 ---

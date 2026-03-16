@@ -29,7 +29,7 @@ When a **push** or **pull_request** event is received:
 1. Go to **Settings → Run Settings** and enable the **Smart PR Routing** toggle.
 2. Copy the **Webhook URL** displayed in the callout:
    ```
-   https://api.agnox.dev/api/webhooks/ci/pr?token=<orgId>
+   https://api.agnox.dev/api/webhooks/ci/pr?token=<orgId>&projectId=<projectId>
    ```
 3. In **Settings → Run Settings**, generate or enter a **Webhook Secret** and save it. This secret is used to sign every GitHub delivery.
 4. In your **GitHub** repository, go to **Settings → Webhooks → Add webhook**:
@@ -58,6 +58,25 @@ Every inbound push event is validated using enterprise-grade **`X-Hub-Signature-
 2. Paste the Webhook URL in the **URL** field.
 3. Under **Trigger**, check **Push events**.
 4. Click **Add webhook**.
+
+---
+
+## Project Targeting (`?projectId=`)
+
+For organizations with **multiple projects**, append `?projectId=<projectId>` to the webhook URL:
+
+```
+https://api.agnox.dev/api/webhooks/ci/pr?token=<orgId>&projectId=<projectId>
+```
+
+This parameter is **highly recommended** whenever your organization contains more than one project. Without it, the endpoint falls back to the oldest project in the organization, which will fetch incorrect run settings (docker image, target URLs, environment variables) for the repository triggering the webhook.
+
+Find your Project ID in **Settings → Run Settings → Execution Defaults** or in the URL bar when a project is selected in the dashboard.
+
+> **Tip:** Combine `projectId` with other query parameters for a fully explicit URL:
+> ```
+> https://api.agnox.dev/api/webhooks/ci/pr?token=<orgId>&projectId=<projectId>&env=staging&groupName=PR-Checks
+> ```
 
 ---
 

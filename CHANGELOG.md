@@ -3,6 +3,41 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [3.23.0] — 2026-03-17
+
+### Changed
+- `docs/getting-started/intro.md` — Updated AI Quality Orchestrator feature count from 5 to 6 (added Spec-to-Test Generation); expanded Enterprise Connectors description to include Linear, Monday.com, MS Teams, and Generic Webhook.
+- `docs/architecture/system-overview.md` — Replaced `Google Gemini AI` diagram node with `AI Providers (BYOK)`; replaced `Slack` node with `Notifications & Webhooks`; added Global Project Selector to Dashboard Client features; renamed "Security" settings tab to "AI Models"; added new producer routes (spec-to-tests, monday, integration unlinking, bulk/suite test-case deletion, cycle deletion); updated Dual-Agent diagram to remove Gemini model hardcode; added `ingest_sessions` collection and storage tracking notes; updated Worker analysisService description to multi-provider.
+- `docs/architecture/deployment.md` — Bumped version header from 3.5.0 to 3.23.0 and date to 2026-03-17.
+- `docs/architecture/infrastructure.md` — Updated AI prerequisites section to reference multi-provider BYOK (Gemini/OpenAI/Anthropic); added `ENCRYPTION_KEY` and optional AI provider keys to `.env` template; updated AI Analysis step to mention multi-provider dual-agent pipeline; expanded troubleshooting table with startup guard note.
+- `docs/architecture/ci-cd.md` — Updated `PLATFORM_GEMINI_API_KEY` description and AI Analysis troubleshooting row to reflect multi-provider BYOK.
+- `docs/api-reference/authentication.md` — Corrected Free plan `maxTestRuns` from 100 to 50; added `maxConcurrentRuns` and `maxStorageBytes` to example limits object.
+- `docs/api-reference/organizations.md` — Corrected Free plan `maxTestRuns` (100 → 50); added `maxStorageBytes` and `currentStorageUsedBytes` to limits; added Monday.com integration endpoints (`GET/PUT /api/integrations/monday`, `POST /api/monday/items`); added `DELETE /api/integrations/:provider` endpoint.
+- `docs/api-reference/api-overview.md` — Added Integrations and PR Routing Webhook rows to the Endpoint Categories table.
+- `docs/core-features/executions.md` — Replaced "Gemini-powered" with provider-agnostic description in Investigation Hub tab table.
+- `docs/integrations/slack.md` — Added Monday.com, MS Teams, and Generic Webhook to the Other Connectors list.
+- `docs/integrations/overview.md` — Corrected MS Teams card description from "Adaptive Card" to "MessageCard".
+- `README.md` — Updated billing description from 3 tiers to 5 tiers; added Spec-to-Test to AI Quality Orchestrator capability list; added v3.19.0–v3.22.0 entries to project status table and Q1 2026 roadmap.
+- `package.json` — Version bumped from `3.22.0` to `3.23.0`.
+
+- `docs/core-features/executions.md` — Removed "Phase 5 introduces" prefix from Auto-Quarantine section (feature is shipped, not planned).
+- `docs/ai-capabilities/flakiness-detective.md` — Removed "Phase 5 introduces" prefix and "Smart Execution Analytics (Phase 5)" heading; feature is fully shipped.
+
+### Ghosts Purged
+- `docs/architecture/system-overview.md`: `Google Gemini AI` diagram node (platform has been multi-provider BYOK since v3.10.0).
+- `docs/architecture/system-overview.md`: Dual-Agent pipeline hardcoded `gemini-2.5-flash` model strings — replaced with resolver reference.
+- `docs/architecture/system-overview.md`: Settings sidebar listed "Security" tab — renamed to "AI Models" in v3.22.0.
+- `docs/architecture/deployment.md`: Stale version header `3.5.0 / February 27, 2026`.
+- `docs/architecture/infrastructure.md`: Single-provider AI prerequisite (Gemini only).
+- `docs/architecture/ci-cd.md`: Single-provider AI analysis troubleshooting.
+- `docs/api-reference/authentication.md`: `maxTestRuns: 100` for Free plan (Free plan limit is 50 as of v3.22.0).
+- `docs/api-reference/organizations.md`: Missing storage limit fields and missing Monday.com/unlink integration endpoints.
+- `docs/integrations/overview.md`: "Adaptive Card" description for MS Teams (actual format is `MessageCard`).
+- `README.md`: 3-tier billing description ("Free, Team, and Enterprise tiers") after 5-tier model shipped in v3.22.0.
+- `docs/core-features/executions.md`: "Phase 5 introduces" framing for Auto-Quarantine (now a shipped feature, not a phase preview).
+- `docs/ai-capabilities/flakiness-detective.md`: "Phase 5 introduces" framing and "Smart Execution Analytics (Phase 5)" heading — feature has been live since v3.13.0.
+- `docs/architecture/system-overview.md`: "(Sprint 9)" labels on `/api/test-cases/*`, `/api/test-cycles/*`, `test_cases`, and `test_cycles` — replaced with current capability descriptions.
+
 ## [3.22.0] — 2026-03-16
 
 ### Added

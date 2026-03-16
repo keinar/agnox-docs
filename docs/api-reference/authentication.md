@@ -134,7 +134,7 @@ Authorization: Bearer <jwt-token>
       "id": "507f191e810c19729de860ea",
       "name": "Acme Corp",
       "plan": "free",
-      "limits": { "maxProjects": 1, "maxTestRuns": 100, "maxUsers": 3 },
+      "limits": { "maxProjects": 1, "maxTestRuns": 50, "maxUsers": 3, "maxConcurrentRuns": 1, "maxStorageBytes": 524288000 },
       "aiAnalysisEnabled": true
     }
   }

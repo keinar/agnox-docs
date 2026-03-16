@@ -16,7 +16,7 @@ Ensure the following are available before deployment:
 - Docker & Docker Compose installed
 - MongoDB Atlas connection string
 - Open ports for HTTP/HTTPS and RabbitMQ (if external)
-- **Gemini API Key:** Required for the AI Root Cause Analysis feature.
+- **AI API Key:** At least one LLM API key is recommended for the AI Quality Orchestrator. Supported providers: Google Gemini (`PLATFORM_GEMINI_API_KEY`), OpenAI (`PLATFORM_OPENAI_API_KEY`), Anthropic (`PLATFORM_ANTHROPIC_API_KEY`). Organization-level BYOK keys can override platform defaults at runtime.
 
 ---
 
@@ -30,8 +30,13 @@ PLATFORM_MONGO_URI=mongodb+srv://<user>:<pass>@cluster.mongodb.net/automation_pl
 PLATFORM_RABBITMQ_URL=amqp://automation-rabbitmq
 PLATFORM_REDIS_URL=redis://automation-redis:6379
 
-# AI Configuration
+# AI Configuration (at least one provider key recommended)
 PLATFORM_GEMINI_API_KEY=<REDACTED_GOOGLE_API_KEY>
+# PLATFORM_OPENAI_API_KEY=<REDACTED_OPENAI_KEY>
+# PLATFORM_ANTHROPIC_API_KEY=<REDACTED_ANTHROPIC_KEY>
+
+# Encryption (CRITICAL — exactly 32 characters / 64 hex chars)
+ENCRYPTION_KEY=<64-char-hex-string>
 
 # Auth Secrets
 PLATFORM_JWT_SECRET=<REDACTED_JWT_SECRET>
@@ -53,9 +58,9 @@ The Worker is the heart of the execution engine. Here is the updated lifecycle o
 
 5. **AI Analysis (If Failed):**
    - The Worker gathers the failure logs.
-   - It sends them to the **Gemini 2.5 Flash** model.
-   - Generates a "Root Cause Analysis" and "Suggested Fix".
-   - Updates the execution record with the analysis report.
+   - It sends them to the configured LLM provider (Gemini, GPT-4o, or Claude — resolved via BYOK or platform fallback).
+   - Generates a "Root Cause Analysis" and "Suggested Fix" using a dual-agent Analyzer → Critic pipeline.
+   - Updates the execution record with the analysis report and records the `aiModel` used as an immutable artifact.
    - Final status set to `FAILED` (or `UNSTABLE`).
 
 ---
@@ -81,6 +86,7 @@ Once deployed:
 | Issue | Resolution |
 | --- | --- |
 | **Tests fail instantly** | Verify execution config in **Settings → Run Settings**. |
-| **No AI Analysis** | Check if `PLATFORM_GEMINI_API_KEY` is set and valid. |
+| **No AI Analysis** | Check if at least one AI provider key is set (`PLATFORM_GEMINI_API_KEY`, `PLATFORM_OPENAI_API_KEY`, or a BYOK key in **Settings → AI Models**). |
 | **Container exits immediately** | Check `entrypoint.sh` permissions. |
-| **Status stuck on ANALYZING** | Check Worker logs for timeouts connecting to Google AI. |
+| **Status stuck on ANALYZING** | Check Worker logs for LLM provider timeouts or invalid API keys. |
+| **Producer service refuses to start** | Verify `ENCRYPTION_KEY` (exactly 32 chars / 64 hex), `PLATFORM_JWT_SECRET`, and `PLATFORM_MONGO_URI` are all set. |

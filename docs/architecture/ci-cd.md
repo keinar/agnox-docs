@@ -22,7 +22,7 @@ Go to your GitHub Repo -> **Settings** -> **Secrets and variables** -> **Actions
 | `VPS_USER` | **Infra** | Usually `ubuntu` or `opc`. |
 | `PLATFORM_MONGO_URI` | **Infra** | Connection string for MongoDB Atlas. |
 | `PLATFORM_JWT_SECRET` | **Infra** | 64-char hex secret for JWT authentication (`openssl rand -hex 32`). |
-| `PLATFORM_GEMINI_API_KEY` | **Infra** | **Critical:** Required by the Worker Service for AI Root Cause Analysis. |
+| `PLATFORM_GEMINI_API_KEY` | **Infra** | Fallback Gemini API key for the AI Quality Orchestrator. At least one of `PLATFORM_GEMINI_API_KEY`, `PLATFORM_OPENAI_API_KEY`, or `PLATFORM_ANTHROPIC_API_KEY` should be set. Organization BYOK keys override these at runtime. |
 | `STRIPE_SECRET_KEY` | **Infra** | Stripe API secret key for billing integration. |
 | `STRIPE_WEBHOOK_SECRET` | **Infra** | Stripe webhook endpoint secret for signature verification. |
 | `SENDGRID_API_KEY` | **Infra** | SendGrid API key for transactional email delivery. |
@@ -92,7 +92,7 @@ The Worker Service uses the platform environment variables to connect to infrast
 
 | Issue | Resolution |
 | --- | --- |
-| **AI Analysis Fails** | Check if `PLATFORM_GEMINI_API_KEY` is in GitHub Secrets and if the `.env` on the server contains it after deploy. |
+| **AI Analysis Fails** | Check that at least one AI provider key (`PLATFORM_GEMINI_API_KEY`, `PLATFORM_OPENAI_API_KEY`, or `PLATFORM_ANTHROPIC_API_KEY`) is in GitHub Secrets and present in the `.env` on the server after deploy. Also verify BYOK keys in **Settings → AI Models** are valid. |
 | **Billing not working** | Verify `STRIPE_SECRET_KEY` and `STRIPE_WEBHOOK_SECRET` are in GitHub Secrets and that the webhook URL is registered in Stripe dashboard. |
 | **Emails not sending** | Verify `SENDGRID_API_KEY` is valid. Check SendGrid Activity for delivery status. |
 | **"Permission denied"** | Ensure the SSH Key in GitHub Secrets matches the one on the VPS (`~/.ssh/authorized_keys`). |

@@ -31,15 +31,16 @@ Triage failures instantly with a real-time streaming terminal and visual artifac
 Build a living manual test repository with suite-grouped test cases. Generate structured test steps in seconds with AI, then combine manual and automated items into **Hybrid Test Cycles**.
 
 ### AI Quality Orchestrator
-Five opt-in AI features that work across your quality data:
-- **Auto-Bug Generator** — structured Jira-ready bug reports from failed logs
+Six opt-in AI features that work across your quality data:
+- **Auto-Bug Generator** — structured bug reports from failed logs, submittable to Jira, Linear, or Monday.com
 - **Flakiness Detective** — stability analysis and actionable recommendations
 - **Smart Test Optimizer** — BDD conversion with duplicate detection
 - **Smart PR Routing** — automatically route CI runs to relevant test folders
 - **Quality Chatbot** — natural-language queries over your test database
+- **Spec-to-Test Generation** — upload a PDF, DOCX, or Markdown spec to auto-generate a test case library
 
 ### Enterprise Connectors
-Create Jira tickets directly from failed tests. Receive real-time Slack notifications. Trigger runs from GitHub Actions or any CI system.
+Create Jira, Linear, or Monday.com issues directly from failed tests. Receive real-time Slack and MS Teams notifications. Trigger runs from GitHub Actions, GitLab CI, Azure DevOps, Bitbucket, or any CI system. Send execution payloads to any endpoint via the generic outbound webhook.
 
 ## Navigation
 

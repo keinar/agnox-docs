@@ -91,7 +91,7 @@ The drawer has three tabs:
 |-----|---------|
 | **Terminal** | Live log stream with auto-scroll toggle and `.txt` download |
 | **Artifacts** | Media gallery — screenshots, videos, and downloadable trace zips |
-| **AI Analysis** | Gemini-powered root-cause analysis for failed executions |
+| **AI Analysis** | AI-powered root-cause analysis for failed executions (model determined by org BYOK config or platform default) |
 
 > The **AI Analysis** tab is hidden when the execution status is `ERROR` — AI cannot effectively analyze platform or container launch errors.
 
@@ -151,7 +151,7 @@ AI analysis can be disabled per-organization in **Settings → Organization**.
 
 ## Auto-Quarantine & Quality Gate Bypass
 
-Phase 5 introduces **Auto-Quarantine** to prevent flaky tests from blocking your CI/CD pipelines.
+**Auto-Quarantine** prevents flaky tests from blocking your CI/CD pipelines.
 
 ### How it Works
 1. When a test fails **3 consecutive times**, Agnox automatically flags it as quarantined.

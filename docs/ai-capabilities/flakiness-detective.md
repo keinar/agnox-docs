@@ -44,9 +44,9 @@ Past analyses are listed in the **history panel** on the right side of the Stabi
 
 ---
 
-## Smart Execution Analytics (Phase 5)
+## Smart Execution Analytics
 
-Phase 5 introduces persistent tracking of individual test health across all executions. These metrics are displayed in the **Test Cases** table and the **Investigation Hub**.
+Agnox tracks persistent individual test health metrics across all executions. These metrics are displayed in the **Test Cases** table and the **Investigation Hub**.
 
 ### A–F Stability Scoring
 Every test case is assigned a letter grade based on its historical pass rate and retry usage:

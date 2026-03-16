@@ -41,9 +41,9 @@ graph TB
     end
 
     subgraph "External Services"
-        Gemini[Google Gemini AI<br/>Root Cause Analysis]
+        Gemini[AI Providers (BYOK)<br/>Gemini / GPT-4o / Claude]
         Email[Email Service<br/>SMTP/SendGrid]
-        Slack[Slack<br/>Webhook Notifications]
+        Slack[Notifications & Webhooks<br/>Slack / MS Teams / Generic]
     end
 
     UI -->|HTTPS/WSS| Producer
@@ -83,7 +83,8 @@ graph TB
 - Mobile-responsive design powered strictly by Tailwind CSS
 - Real-time WebSocket connection with JWT authentication
 - Auth context for global authentication state
-- **Contextual Sliding Sidebar:** When navigating to `/settings`, the persistent sidebar animates to reveal a dedicated settings sub-menu. The full settings sections are: **Profile**, **Organization**, **Team Members**, **Billing & Plans**, **Security**, **Usage**, **Run Settings**, **Env Variables**, **Connectors**, **Schedules**, and **Features**. Admin-only tabs (Billing & Plans, Features) are hidden for non-admin roles.
+- **Global Project Selector:** `ProjectContext.tsx` provides a platform-wide `activeProjectId` (persisted in `localStorage`); a project dropdown in `DashboardHeader.tsx` synchronises context, URL `?project=` param, and all data-fetching hooks simultaneously.
+- **Contextual Sliding Sidebar:** When navigating to `/settings`, the persistent sidebar animates to reveal a dedicated settings sub-menu. The full settings sections are: **Profile**, **Organization**, **Team Members**, **Billing & Plans**, **AI Models**, **Usage**, **Run Settings**, **Env Variables**, **Connectors**, **Schedules**, and **Features**. Admin-only tabs (Billing & Plans, Features) are hidden for non-admin roles.
 
 **Port:** 8080 (exposed via Docker Compose)
 
@@ -119,8 +120,8 @@ graph TB
 - `/api/executions/*` - Test execution history, bulk ops, artifact listing
 - `/api/execution-request` - Queue new test execution
 - `/api/schedules/*` - CRON schedule management (create, list, delete)
-- `/api/test-cases/*` - Manual test case CRUD with AI step generation (Sprint 9)
-- `/api/test-cycles/*` - Hybrid test cycle management + item updates (Sprint 9)
+- `/api/test-cases/*` - Manual test case CRUD, AI step generation, bulk/suite delete
+- `/api/test-cycles/*` - Hybrid test cycle management, item updates, cycle deletion
 - `/api/projects/:projectId/env` - Per-project environment variable CRUD (secrets encrypted at rest)
 - `/api/ci/trigger` - Native CI/CD pipeline trigger; accepts `x-api-key` or Bearer JWT; creates test cycle + execution and queues to RabbitMQ
 - `/api/ingest/setup` - Reporter session setup (100 req/min per API key)
@@ -139,6 +140,13 @@ graph TB
 - `/api/ai/chat/:conversationId` - Feature E: Full message history for a conversation
 - `/api/integrations/linear` - GET/PUT Linear integration credentials (AES-256-GCM encrypted API key + teamId)
 - `/api/linear/issues` - POST: create a Linear issue from an execution; writes back to `execution.linearIssues[]`
+- `/api/integrations/monday` - GET/PUT Monday.com integration (encrypted token + boardId + optional groupId)
+- `/api/monday/items` - POST: create a Monday.com board item from an execution; writes back to `execution.mondayItems[]`
+- `/api/integrations/:provider` - DELETE: unlink an integration (admin-only; `$unset`s encrypted credentials)
+- `/api/ai/spec-to-tests` - Feature F: SSE streaming endpoint (multipart upload, 4-stage pipeline)
+- `/api/test-cases/bulk` - DELETE: bulk delete up to 100 test cases
+- `/api/test-cases/suite` - DELETE: delete all test cases in a suite
+- `/api/test-cycles/:id` - DELETE: hard-delete a cycle (409 if RUNNING)
 
 ---
 
@@ -183,7 +191,7 @@ graph TB
 
 **Key Files:**
 - `worker.ts` - Main consumer and orchestrator
-- `analysisService.ts` - Google Gemini dual-agent AI pipeline (Analyzer → Critic)
+- `analysisService.ts` - Multi-provider dual-agent AI pipeline (Analyzer → Critic); resolves LLM via BYOK org config or platform fallback
 
 ---
 
@@ -197,7 +205,8 @@ Input: raw logs (up to 60,000 chars)
           ▼
 ┌─────────────────────────────────────────────────────────┐
 │  STEP 1 — Analyzer (Actor)                              │
-│  Model:       gemini-2.5-flash                          │
+│  Model:       resolved via resolveLlmConfig()           │
+│               (BYOK org key → platform fallback)        │
 │  Temperature: 0.4  (creative, generates suggestions)    │
 │  Schema:      responseSchema enforced JSON output       │
 │               { rootCause: string, suggestedFix: string }│
@@ -207,7 +216,7 @@ Input: raw logs (up to 60,000 chars)
                       ▼
 ┌─────────────────────────────────────────────────────────┐
 │  STEP 2 — Critic (Evaluator)                            │
-│  Model:       gemini-2.5-flash                          │
+│  Model:       same as Analyzer (same resolved config)   │
 │  Temperature: 0.0  (deterministic, no creativity)        │
 │  Input:       raw logs + Analyzer JSON output            │
 │  Task:        validate every claim; override             │
@@ -238,12 +247,17 @@ Input: raw logs (up to 60,000 chars)
 - `apiKeys` - Hashed API keys for CI/CD integration
 - `audit_logs` - Admin action audit trail
 - `webhook_logs` - Stripe webhook event log
-- `schedules` - CRON schedule definitions (Sprint 8): expression, environment, image, folder, baseUrl
-- `test_cases` - Manual and automated test case definitions (Sprint 9): steps array, suite grouping, AI-generated content
-- `test_cycles` - Hybrid test cycles (Sprint 9): items array with status tracking, summary stats, cycle-level status
+- `schedules` - CRON schedule definitions: expression, environment, image, folder, baseUrl
+- `test_cases` - Manual and automated test case definitions: steps array, suite grouping, AI-generated content, `stabilityScore`, `isQuarantined`, `aiFlag` field for spec-to-test
+- `test_cycles` - Hybrid test cycles: items array with status tracking, summary stats, cycle-level status, `projectId` field
 - `projectEnvVars` - Per-project environment variables; `isSecret=true` values stored as AES-256-GCM encrypted payloads
 - `stability_reports` - Flakiness analysis results per group: score (0-100), verdict, findings, recommendations, passRate. Tenant-isolated.
 - `chat_sessions` - Multi-turn AI chat conversations: messages array, conversationId (UUID), 24h TTL. Tenant-isolated.
+- `ingest_sessions` - Temporary session records for `@agnox/playwright-reporter` teardown (TTL collection).
+
+**Storage Tracking:**
+- **Mechanism A:** Worker atomically `$inc`s `limits.currentStorageUsedBytes` on every execution finish.
+- **Mechanism B:** `jobs/storage-reconciler.ts` nightly cron (02:00 UTC) recalculates true byte usage via MongoDB `$bsonSize` aggregation and corrects any drift.
 
 **Indexes:**
 - `organizationId` - All collections (multi-tenant filtering)
