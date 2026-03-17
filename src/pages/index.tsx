@@ -211,6 +211,12 @@ const FeatureList: FeatureItem[] = [
     description:
       'A unified view across test cycles, execution history, artifact galleries, and org-wide metrics — with a natural-language Quality Chatbot for instant insights.',
   },
+  {
+    icon: '🗺️',
+    title: 'AI Automation Planner',
+    description:
+      'Scan manual tests, prioritize risk, and auto-generate Playwright/Cypress framework scaffolding with Page Object Models instantly.',
+  },
 ];
 
 function HomepageFeatures(): ReactNode {
