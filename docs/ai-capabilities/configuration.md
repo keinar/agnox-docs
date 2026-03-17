@@ -6,7 +6,7 @@ sidebar_position: 1
 
 # AI Configuration & BYOK
 
-The AI Quality Orchestrator is a suite of six opt-in AI features. This page explains how to enable features and configure your LLM provider, including how to supply your own API keys.
+The AI Quality Orchestrator is a suite of seven opt-in AI features. This page explains how to enable features and configure your LLM provider, including how to supply your own API keys.
 
 ---
 
@@ -21,7 +21,8 @@ All AI features are **off by default** (opt-in model). Enable them individually 
 | Smart Test Optimizer | `testOptimizer` | Bulk Actions bar in Test Cases |
 | Smart PR Routing | `prRouting` | Run Settings toggle |
 | Quality Chatbot | `qualityChatbot` | Ask AI (sidebar) |
-| **Spec-to-Test Generation** | `specToTest` | "Import from Spec" button in Test Cases |
+| Spec-to-Test Generation | `specToTest` | "Import from Spec" button in Test Cases |
+| **Automation Planner** | `automationPlanner` | Automation Planner (sidebar) |
 
 ---
 
@@ -81,6 +82,8 @@ Several AI features use a **Dual-Agent pipeline** to deliver high-quality, hallu
 
 Features using this pattern: **Root Cause Analysis**, **Auto-Bug Generator**, **Smart Test Optimizer**, **Spec-to-Test Generation** (4-stage pipeline).
 
+The **Automation Planner** uses a different two-stage architecture: Stage 1 sends only metadata (titles, suites, tags) for risk stratification; Stage 2 sends full step data only for the tests the user explicitly selected. This bounds token cost regardless of corpus size.
+
 ---
 
 ## Related
@@ -91,3 +94,4 @@ Features using this pattern: **Root Cause Analysis**, **Auto-Bug Generator**, **
 - [Smart PR Routing →](./pr-routing)
 - [Quality Chatbot →](./chatbot)
 - [Spec-to-Test Generation →](./spec-to-test)
+- [Automation Planner →](./automation-planner)

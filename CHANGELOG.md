@@ -3,6 +3,40 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [3.24.0] — 2026-03-17
+
+### Added
+- **AI Automation Planner (Phase 6):** `POST /api/ai/automation-planner/discover` — Stage 1 metadata scan with optional `suite`/`tags` pre-scan filters; sends compact test-case metadata to the LLM for 4-level risk stratification (CRITICAL/HIGH/MEDIUM/LOW) grouped by suite; graceful fallback to ungrouped MEDIUM risk on LLM failure.
+- **AI Automation Planner (Phase 6):** `POST /api/ai/automation-planner/generate` — Stage 2 deep-dive; fetches full step data only for selected tests (max 30); LLM generates a 6-section GitHub-flavoured Markdown automation strategy document; safety-net extractor handles JSON-wrapped model responses; result persisted to new `automationPlans` collection.
+- **AI Automation Planner (Phase 6):** `GET /api/ai/automation-planner/history` — last 20 saved plans for the org, optionally filtered by `?projectId=`.
+- **AI Automation Planner (Phase 6):** `GET /api/ai/automation-planner/filter-options` — distinct suite names and flattened tag values for filter bar dropdowns; no LLM call.
+- `automationPlans` MongoDB collection with compound indexes `{ organizationId, createdAt }` and `{ organizationId, projectId, createdAt }` (migration 015).
+- `aiFeatures.automationPlanner?: boolean` field added to `IAiFeatureFlags` in `packages/shared-types/index.ts`.
+- `AutomationPlannerPage.tsx` — full UI with `SuiteGroup`, `HistoryPanel`, `FilterBar`, and `RiskBadge` sub-components; phases: idle → scanning → results; 30-test selection cap enforced client-side.
+- `ArtifactModal.tsx` — full-screen Markdown artifact viewer with copy-to-clipboard and download-as-`.md` controls; handles both new generation (calls `/generate`) and history re-open (pre-populated markdown, no LLM call).
+- `Wand2` sidebar nav entry with `aiFlag: 'automationPlanner'`; `FeatureGatedRoute` at `/automation-planner`.
+- Migration 014: backfills `aiFeatures.automationPlanner = true` on all existing organizations.
+- Migration 015: creates `automationPlans` collection and indexes.
+- New doc page `docs/ai-capabilities/automation-planner.md`.
+
+### Changed
+- `docs/architecture/phase-6-ai-automation-planner.md` status updated from "Design / Pre-implementation" to "Completed ✅"; endpoints, collection name, risk levels, migration numbers, frontend component map, and sidebar icon corrected to match implementation.
+- `docs/ai-capabilities/configuration.md` feature count updated to seven; `automationPlanner` flag added to the feature flags table and Related section; Automation Planner two-stage architecture note added.
+- `PROJECT_CONTEXT.md` header updated to v3.24.0 / Phase v6.0; Phase 24 entry added to product features table; `automationPlans` collection added to MongoDB schema; automation-planner routes added to API routes table; migrations list extended to 014/015; docs directory structure corrected to reflect actual Docusaurus layout; `/automation-planner` added to frontend routing map; endpoint count updated to 80+.
+- `README.md` AI Orchestrator feature list and sprint table updated to include v3.24.0.
+- `PUBLIC_README.md` capability table updated to include Automation Planner.
+- Root `package.json` version bumped 3.23.0 → 3.24.0.
+
+### Purged (Ghost Content)
+- Stale docs directory paths (`docs/architecture/overview.md`, `docs/api/`, `docs/setup/`, `docs/features/`, `docs/integration/`, `docs/deployment/`, `docs/system/`) removed from `PROJECT_CONTEXT.md` — these paths no longer exist; content lives in the Docusaurus tree.
+- "Design / Pre-implementation" status label removed from phase-6 architecture doc.
+- Incorrect endpoint names (`/tree`, `/briefs`, `/briefs/:briefId`) purged from phase-6 doc.
+- Incorrect collection name `automation_briefs` purged from phase-6 doc.
+- Incorrect migration number `011` purged from phase-6 doc.
+- 3-level risk scale (HIGH/MED/LOW) replaced with 4-level (CRITICAL/HIGH/MEDIUM/LOW).
+- Incorrect sidebar icon reference `Bot` replaced with actual icon `Wand2`.
+- Incorrect sub-component file listing replaced with accurate co-located structure.
+
 ## [3.23.0] — 2026-03-17
 
 ### Changed
