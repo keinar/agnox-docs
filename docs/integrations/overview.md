@@ -14,6 +14,40 @@ Every secret you store in Agnox (API tokens, webhook URLs, signing keys) is encr
 
 ---
 
+## Why Use Official Agnox SDKs?
+
+Agnox ships official **framework adapters** — lightweight SDKs and plugins for each major testing ecosystem. These are the recommended way to connect your test suite to Agnox.
+
+**You never modify individual test files.** Installation is a one-time, configuration-level change.
+
+### The Difference in AI Accuracy
+
+How you integrate directly determines the quality of AI Root Cause Analysis (RCA) you receive.
+
+| | **With an Official Agnox Adapter (Recommended)** | **Without an Adapter (Fallback Mode)** |
+|---|---|---|
+| **Setup required** | Add adapter to config file only. Zero test-code changes. | No setup — raw CI stdout is parsed automatically. |
+| **Runtime context captured** | **Automatically at the exact moment of failure:** current URL, page title, ARIA DOM snapshot, console errors, and failed network requests (4xx/5xx). | None — only raw stdout/stderr from the CI log is available. |
+| **AI RCA quality** | **Hyper-accurate.** The AI receives a structured, typed payload: the exact URL that failed, the specific network call that returned 404, and the console error that preceded the crash. It can diagnose routing bugs, API regressions, and visual state errors with surgical precision. | **Best-effort.** The AI parses unstructured log text. It cannot distinguish a routing bug from a flaky assertion, and has no visibility into network state or the DOM at the moment of failure. |
+| **Token efficiency** | The structured context block is ~200 tokens. The AI processes signal, not noise. | The AI must scan up to 30,000 characters of log text looking for diagnostic clues. |
+| **Network error detection** | Every `4xx`/`5xx` response is captured with URL, method, and status code. | Only if the test framework happened to print it to stdout. |
+| **DOM state at failure** | ARIA accessibility tree snapshot (capped at 8 KB). | Not available. |
+
+:::tip Use an Adapter
+If you are starting a new integration, always install the Adapter for your framework first. The improvement in RCA accuracy is immediate and requires no changes to your test code.
+:::
+
+### Available Official Adapters
+
+| Framework | Package | Language | Status |
+|---|---|---|---|
+| **Playwright** | [`@agnox/playwright-reporter`](./playwright-reporter) | TypeScript / JS | **Available** |
+| **Cypress** | `@agnox/cypress-plugin` | TypeScript / JS | Coming in Phase 8.2 |
+| **Pytest + Selenium** | `agnox-pytest` | Python | Coming in Phase 8.3 |
+| **WebdriverIO** | `@agnox/wdio-service` | TypeScript / JS | Roadmap |
+
+---
+
 ## Available Integrations
 
 ### CI/CD & Source Control

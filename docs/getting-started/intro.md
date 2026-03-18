@@ -22,6 +22,14 @@ Agnox supports two integration modes — choose the one that fits your workflow:
 | **Requires Docker image** | Yes — push your image to Docker Hub | No — works with any existing Playwright setup |
 | **Best for** | Full isolation, multi-framework, scheduled runs | Teams already running Playwright in GitHub Actions, GitLab CI, or locally |
 
+## Official Framework SDKs
+
+For teams using the External CI path, Agnox provides **official Adapters** for each major testing framework. Installing an Adapter is a single configuration-level change — **no individual test files are modified**.
+
+Adapters automatically capture **Runtime Context at the exact moment of failure**: the current page URL, console errors, failed network requests, and a DOM snapshot. This structured data feeds directly into the AI Root Cause Analysis engine, delivering significantly more accurate diagnostics than log parsing alone.
+
+See the [Integrations Overview →](../integrations/overview) for a full comparison of AI RCA quality with and without an Adapter, and for the list of available packages.
+
 ## Platform Highlights
 
 ### Investigation Hub

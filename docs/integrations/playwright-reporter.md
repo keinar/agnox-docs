@@ -139,8 +139,54 @@ The compiled `dist/` folder is git-ignored. Build the package in CI before runni
 
 ---
 
+## Enabling Runtime Context (Recommended)
+
+By default the reporter streams test results and raw log output. Enabling **Runtime Context** upgrades AI Root Cause Analysis from log parsing to structured, frame-accurate diagnostics.
+
+When enabled, the reporter automatically captures at the moment of each failure:
+- The exact page URL
+- The page `<title>`
+- All `console.error()` messages emitted during the test
+- Every network request that returned a `4xx` or `5xx` status
+- A lightweight ARIA accessibility tree snapshot (capped at 8 KB)
+
+**No individual test files are modified.** The only change is a one-line update to your shared fixtures file.
+
+### Step 1 — Upgrade to v2.x
+
+```bash
+npm install --save-dev @agnox/playwright-reporter@latest
+```
+
+### Step 2 — Update your shared fixtures file
+
+Locate the file where your team re-exports `test` and `expect` (commonly `tests/fixtures/base.ts` or similar). Change the import source:
+
+```diff
+// tests/fixtures/base.ts  ← a fixtures/config file, not a test file
+- import { test, expect } from '@playwright/test';
++ import { test, expect } from '@agnox/playwright-reporter';
+```
+
+That is the only change required. The `test` object exported by `@agnox/playwright-reporter` is a drop-in replacement — it wraps Playwright's `test` with an automatic context-capture fixture that has zero overhead on passing tests.
+
+### What happens under the hood
+
+The extended `test` object injects a fixture with `{ auto: true }`, which means it runs for every test without needing to be referenced anywhere in test code. On failure or timeout, the fixture:
+
+1. Reads `page.url()` and `page.title()`
+2. Replays the buffered console error and network failure lists collected during the test
+3. Takes an ARIA snapshot via `page.accessibility.snapshot()` (Chromium only; skipped silently on other browsers)
+4. Attaches everything as a typed `agnox:runtimeContext` annotation on `testInfo`
+5. The reporter reads this annotation in `onTestEnd` and sends it as a structured field on the `test-end` ingest event — not as log text
+
+The AI Worker consumes the structured object directly. It no longer needs to scan thousands of characters of log noise to find the failing URL.
+
+---
+
 ## Related
 
+- [Integrations Overview — Why Use Official SDKs? →](./overview)
 - [Quick Start →](../getting-started/quick-start)
 - [Docker Setup →](./docker-setup)
 - [GitHub Actions →](./github-actions)
