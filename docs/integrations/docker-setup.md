@@ -170,6 +170,37 @@ module.exports = {
 
 ## Troubleshooting
 
+### `npm ci` Fails in Monorepo / Workspace Projects
+
+**Symptom:** Docker build fails with an error similar to:
+
+```
+npm error Cannot read properties of null (reading 'matches')
+npm error code ENOWORKSPACES
+```
+
+or references a missing `package.json` in a parent directory.
+
+**Cause:** If your test project lives inside a monorepo that uses npm, Yarn, or pnpm workspaces, your `package-lock.json` contains local workspace links (e.g., `"file:../../packages/shared-types"`) that resolve relative to the monorepo root. Because the Docker build context is scoped to your app or test folder, `npm ci` cannot traverse up to the root directory and fails immediately.
+
+**Fix:** Open your generated `Dockerfile` and replace:
+
+```dockerfile
+RUN npm ci
+```
+
+with:
+
+```dockerfile
+RUN npm install
+```
+
+`npm install` fetches all packages directly from the registry and ignores the local workspace links, so the isolated build context is no longer an issue.
+
+> **Why not use `npm install` by default?** For standalone projects, `npm ci` is the recommended practice — it enforces exact lockfile versions, is faster in CI, and fails loudly if the lockfile is out of sync. Only switch to `npm install` when your project is part of a workspace monorepo.
+
+---
+
 ### Container Fails to Start
 - Verify `entrypoint.sh` exists at `/app/entrypoint.sh`
 - Check file permissions (`chmod +x`)

@@ -305,6 +305,35 @@ Common issues and solutions for the Agnox.
 
 ---
 
+### Docker Build Fails in Monorepo / Workspace Projects
+
+**Symptom:** Your Docker image build fails with an error like:
+
+```
+npm error Cannot read properties of null (reading 'matches')
+npm error code ENOWORKSPACES
+```
+
+**Cause:** The generated `Dockerfile` uses `RUN npm ci` by default, which requires a complete monorepo root to resolve local workspace links. The Docker build context is isolated to your test folder, so npm cannot find the root `package.json`.
+
+**Fix:** In your `Dockerfile`, change:
+
+```dockerfile
+RUN npm ci
+```
+
+to:
+
+```dockerfile
+RUN npm install
+```
+
+This tells npm to fetch dependencies from the registry instead of resolving local workspace paths.
+
+> See [Docker Container Setup → Troubleshooting](../integrations/docker-setup#npm-ci-fails-in-monorepo--workspace-projects) for full details.
+
+---
+
 ### "Docker image not found" Error
 
 **Symptom:** Worker fails with image pull error
