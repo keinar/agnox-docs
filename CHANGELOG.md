@@ -3,6 +3,23 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [3.25.0] — 2026-03-18
+
+### Added
+- **Phase 8.1 — Framework-Agnostic Runtime Context:** `packages/playwright-reporter/src/fixtures.ts` — new `_agnoxContextCapture` auto-fixture (`{ auto: true }`) captures structured `IRuntimeContext` (failureUrl, pageTitle, consoleErrors, networkErrors, domSnapshot via ARIA tree, viewportSize, retryIndex) from the live Playwright browser at the exact moment of test failure. Zero individual test-file modifications required.
+- `test` and `expect` re-exported from `@agnox/playwright-reporter/index.ts` — customers opt in by updating a single shared fixtures file; all other test files remain untouched.
+- `IRuntimeContext` and `INetworkError` interfaces added to `packages/playwright-reporter/src/types.ts`.
+
+### Changed
+- `@agnox/playwright-reporter` bumped to **v2.0.0** (backwards-compatible; v1.x configs continue to work without changes).
+- `onTestEnd` in `packages/playwright-reporter/src/index.ts` reads the `agnox:runtimeContext` annotation written by the auto-fixture and includes `runtimeContext` in the `test-end` ingest event.
+- Updated `docs/architecture/runtime-context-agnostic-design.md` status from PROPOSED to Phase 8.1 IMPLEMENTED. Phases 8.2 (Cypress) and 8.3 (Pytest) remain planned.
+- Updated `PROJECT_CONTEXT.md` to v3.25.0 with Phase 8.1 feature entry and `fixtures.ts` in the monorepo structure map.
+- Updated `README.md` Native Playwright Reporter section to document v2.0 auto-fixture and optional one-line migration.
+- Updated `PUBLIC_README.md` with structured failure context bullet point.
+
+---
+
 ## [3.24.0] — 2026-03-17
 
 ### Added

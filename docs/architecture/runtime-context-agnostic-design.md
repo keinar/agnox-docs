@@ -6,7 +6,7 @@ sidebar_position: 20
 
 **Author:** Claude Code (Principal Architect Mode)
 **Date:** 2026-03-18
-**Status:** PROPOSED — Pending approval before implementation.
+**Status:** Phase 8.1 IMPLEMENTED (v3.25.0) — Phases 8.2 and 8.3 remain planned.
 **Scope:** `packages/shared-types`, `packages/playwright-reporter`, `apps/worker-service/src/analysisService.ts`, new packages `@agnox/cypress-plugin`, `@agnox/pytest-plugin`
 
 ---
@@ -995,4 +995,4 @@ z.object({
 
 ---
 
-*This document describes the target architecture. No implementation has been written. Approval from the Principal Architect is required before proceeding to Phase 8.0.*
+*Phase 8.1 (Playwright Adapter) is fully implemented as of v3.25.0. `@agnox/playwright-reporter` v2.0.0 exports the `_agnoxContextCapture` auto-fixture and the updated `onTestEnd` annotation reader. Phases 8.2 (Cypress) and 8.3 (Pytest) remain planned.*

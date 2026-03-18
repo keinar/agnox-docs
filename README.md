@@ -161,6 +161,7 @@ export default defineConfig({
 - **Auto CI detection** — automatically attaches branch, PR number, and commit SHA from GitHub Actions, GitLab CI, Azure DevOps, and Jenkins
 - **Do No Harm** — all reporter errors are silently suppressed; your test suite is never affected
 - **Source filter** — runs appear as `External CI` in the Dashboard, separate from Docker-hosted runs
+- **Structured failure context (v2.0)** — optionally re-export `test` from `@agnox/playwright-reporter` in your shared fixtures file; an auto-fixture captures the failure URL, page title, console errors, and failed network requests at the moment of failure and injects them directly into the AI root-cause analysis — no test file modifications required
 
 > **npm:** [`@agnox/playwright-reporter`](https://www.npmjs.com/package/@agnox/playwright-reporter)
 
