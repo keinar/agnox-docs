@@ -3,6 +3,16 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [3.25.1] — 2026-03-19
+
+### Changed
+- `docs/getting-started/intro.md` — Updated AI feature count from six to seven; added Automation Planner bullet and Navigation entry.
+- `README.md` — Added Automation Planner and Spec-to-Test to AI Providers description and Tech Stack; added v3.25.0 Phase 8.1 row to Project Status table.
+- `PROJECT_CONTEXT.md` — Added `aiFeatures.automationPlanner` field to organizations schema block.
+- `package.json` — Version bumped `3.25.0` → `3.25.1`.
+
+---
+
 ## [3.25.0] — 2026-03-18
 
 ### Added
