@@ -10,6 +10,21 @@ sidebar_position: 3
 
 ---
 
+## Navigating Cycle Types
+
+The Test Cycles page separates cycles into two tabs:
+
+| Tab | What it shows |
+|-----|--------------|
+| **Manual Cycles** *(default)* | Cycles created via the "Create Cycle" drawer by your QA team |
+| **CI / Automated** | Cycles generated automatically by CI/CD triggers — GitHub Actions, GitLab CI, PR webhooks, and any run carrying a `ciContext` |
+
+> A cycle lands on the **CI / Automated** tab when it was triggered by an external CI system (i.e., the cycle carries a `ciContext` object or is explicitly flagged as `external-ci`). All other cycles appear under **Manual Cycles**.
+
+The **+ Create Cycle** button is only visible on the **Manual Cycles** tab. CI cycles are generated automatically and cannot be created manually.
+
+---
+
 ## Creating a Hybrid Cycle
 
 1. Navigate to **Test Cycles** from the sidebar.
@@ -63,6 +78,8 @@ Click the delete icon on any cycle row and confirm the dialog.
 You can create a test cycle directly from your CI pipeline using `POST /api/ci/trigger`. The cycle appears in **Test Cycles** with a name derived from the repository and PR number (e.g., `myorg/my-repo #42`).
 
 See [Running & Managing Executions →](./executions#option-c-cicd-trigger) for the full request format.
+
+Triggered cycles automatically appear on the **CI / Automated** tab.
 
 ---
 

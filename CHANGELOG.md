@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [3.26.0] — 2026-03-20
+
+### Changed
+- Test Cycles page now has a tabbed interface separating "Manual Cycles" (default) from "CI / Automated" runs
+- CI cycles are identified by `source === 'external-ci'` OR the presence of a `ciContext` object — covers GitHub-triggered runs that only set context without an explicit source flag
+- "+ Create Cycle" button is hidden on the CI / Automated tab; CI cycles are generated automatically and cannot be manually created
+- CI cycle rows now display branch name, repository slug, and PR number as contextual metadata below the cycle name
+- Tab badge counts reflect live totals for each category across the full unfiltered cycle list
+- Tab-aware empty states guide users per context (manual vs. CI-triggered)
+
+---
+
 ## [3.25.1] — 2026-03-19
 
 ### Changed
