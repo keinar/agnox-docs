@@ -6,7 +6,21 @@ sidebar_position: 2
 
 # Test Cases (Quality Hub)
 
-The **Quality Hub** is your living manual test repository — a structured, searchable library of test cases organized by suite, with built-in AI step generation.
+The **Quality Hub** is your living manual test repository — a structured library of test cases organized by suite, with live search and filtering, and built-in AI step generation.
+
+---
+
+## Searching and Filtering
+
+A filter bar appears between the page header and the test case accordion:
+
+| Control | What it does |
+|---------|-------------|
+| **Search input** | Case-insensitive live search on test case titles (350 ms debounce) |
+| **Type dropdown** | Filter to `All Types`, `Manual`, or `Automated` |
+| **Clear filters** | Resets both controls in one click |
+
+Filter state is reflected in the URL (`?search=login&type=MANUAL`) so filtered views can be bookmarked and shared. Switching project from the global header preserves active filters.
 
 ---
 

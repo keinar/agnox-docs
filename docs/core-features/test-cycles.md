@@ -25,6 +25,20 @@ The **+ Create Cycle** button is only visible on the **Manual Cycles** tab. CI c
 
 ---
 
+## Searching and Filtering
+
+A filter bar appears between the tab navigation and the cycle table:
+
+| Control | What it does |
+|---------|-------------|
+| **Search input** | Case-insensitive live search on cycle names (350 ms debounce) |
+| **Status dropdown** | Filter to `All Statuses`, `Pending`, `Running`, or `Completed` |
+| **Clear filters** | Resets both controls in one click |
+
+Filter state is reflected in the URL (`?search=login&status=COMPLETED`) so filtered views can be bookmarked and shared. Filters apply within the currently active tab (Manual or CI).
+
+---
+
 ## Creating a Hybrid Cycle
 
 1. Navigate to **Test Cycles** from the sidebar.

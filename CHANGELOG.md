@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [3.27.0] — 2026-03-20
+
+### Added
+- **Search & Filter — Test Cycles**: `GET /api/test-cycles` now accepts a `search` query param; performs a case-insensitive MongoDB `$regex` match on cycle `name`. Frontend filter bar (between tabs and table) exposes a debounced 350ms search input and a **Status** dropdown (All / Pending / Running / Completed). Both parameters are URL-synced (`?search=` and `?status=`) so filtered views can be bookmarked and shared.
+- **Search & Filter — Test Cases**: `GET /api/test-cases` now accepts a `search` query param; performs a case-insensitive MongoDB `$regex` match on `title`. Frontend filter bar (between header and accordion) exposes a debounced 350ms search input and a **Type** dropdown (All / Manual / Automated). Both parameters are URL-synced (`?search=` and `?type=`).
+- React Query `queryKey` on both pages now includes `search` and `status`/`type` so the cache refreshes automatically when filters change.
+- "No results match your filters" empty state on both pages with a one-click "Clear filters" link.
+- Existing `setSearchParams` calls in both pages updated to use the functional (merge-safe) form, preserving the `?project=` param when search/filter state changes and vice versa.
+
+---
+
 ## [3.26.0] — 2026-03-20
 
 ### Changed
