@@ -59,6 +59,16 @@ The CLI will automatically:
 After the push, enter the fully-qualified image name (e.g. `ghcr.io/my-org/my-automation:latest`) in **Settings → Run Settings → Docker Image** as you would with any other image.
 :::
 
+### Continuous Integration (CI/CD)
+
+To update your Docker image seamlessly in your CI/CD pipeline, use the `push` command:
+
+```bash
+npx @agnox/agnox-cli@latest push -i <image_tag>
+```
+
+This allows you to update the connected image tag programmatically, ensuring Agnox always executes against your latest test suite version.
+
 ---
 
 ## Option B: Manual Docker Setup (Agnox Hosted)

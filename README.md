@@ -129,6 +129,17 @@ npx @agnox/agnox-cli@latest init
 
 The platform uses this image for all runs triggered from the Execution Modal or your CI pipeline.
 
+**Updating Your Image & CI/CD:**
+
+To update your Docker image seamlessly (e.g., in your CI/CD pipeline), use the `push` command:
+
+```bash
+npx @agnox/agnox-cli@latest push -i <image_tag>
+```
+
+This allows you to update the connected image tag programmatically, ensuring Agnox always executes against your latest test suite version.
+
+
 > **npm:** [`@agnox/agnox-cli`](https://www.npmjs.com/package/@agnox/agnox-cli)
 
 ---

@@ -36,7 +36,18 @@ npx @agnox/agnox-cli@latest init -r ghcr.io
 ```
 
 The CLI handles `docker login` and image tagging automatically — no manual `docker tag` or `docker push` required.
+### Updating Your Image (CI/CD)
+
+To update your Docker image seamlessly in your CI/CD pipeline, use the `push` command:
+
+```bash
+npx @agnox/agnox-cli@latest push -i <image_tag>
+```
+
+This ensures Agnox always executes against your latest test suite version without manual configuration changes.
+
 :::
+
 
 📦 **CLI Repository:** [github.com/agnox/agnox-cli](https://github.com/agnox/agnox-cli) ·· **npm:** [@agnox/agnox-cli](https://www.npmjs.com/package/@agnox/agnox-cli)
 
