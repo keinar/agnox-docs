@@ -3,6 +3,31 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [3.28.0] — 2026-03-26
+
+### Added
+- **Test Cases Upgrade:** Full rebuild of the Test Cases module with folder-based hierarchy, human-readable IDs, severity levels, case types, and tags. Navigation migrated from flat accordion to a nested **Folder Tree** sidebar with drag-and-drop reordering.
+- **Human-Readable IDs:** Every test case now has an auto-incremented `tcNumber` and derived `tcId` (`AG-TC-{number}`) for fast search and cross-team ticket references.
+- **Severity & Case Type fields:** Cases are now classified by severity (CRITICAL / HIGH / MEDIUM / LOW) and type (FUNCTIONAL / REGRESSION / SMOKE / PERFORMANCE / SECURITY / USABILITY).
+- **Tags:** Free-form org-scoped tags on test cases with multikey index support for fast filtering.
+- **Full-Page Detail View:** New tab layout (Steps / Comments / History / Details) replaces the right-side drawer for richer per-test inspection.
+- **Quick-Add Bar:** Inline create form in the list view for rapid test case entry without opening a separate modal.
+- **Deep Linking (URL State):** Test Cases page URL is now fully stateful — `?folder=`, `&testcase=`, `&tab=`, and `&fullscreen=true` params let users share direct links to any view, open test case, active tab, and fullscreen mode.
+- **Reorder Mode:** Explicit "Reorder" toggle activates drag-and-drop sorting (`@dnd-kit/sortable`) within the virtualized list; `order` field persisted to the database. Safe to use alongside virtualization.
+- `GET/POST/PUT/DELETE /api/test-case-folders` — new folder management endpoints (tenant-isolated).
+- `POST /api/upload` — new file attachment upload endpoint.
+- `resolveTestCaseId()` utility — resolves both MongoDB ObjectId and `AG-TC-{number}` identifiers.
+- Migration 019 — backfills `test_cases` with new fields; creates `test_folders` collection with materialized-path indexes.
+- Migration 020 — backfills `order` field on all existing test cases for sort persistence.
+
+### Technical
+- `data-testid` attributes injected across 23 Test Cases components for Playwright E2E automation coverage.
+- Full ARIA labelling and keyboard navigation added to `FolderTree`, `TestCaseList`, and `TestCaseDetail` components.
+- `@tanstack/react-virtual` virtualization added to the test case list for high-performance rendering of large case sets.
+- `useTestCasesStore` (Zustand) introduced for shared UI state (selected folder, open test case, active tab, fullscreen, reorder mode) across the Test Cases module.
+
+---
+
 ## [3.27.0] — 2026-03-20
 
 ### Added

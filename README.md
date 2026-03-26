@@ -34,6 +34,7 @@ Agnox sits between your CI/CD pipeline and your test framework, bringing everyth
 | **AI Triage** | Dual-agent LLM pipeline analyzes failures, generates a root cause, and self-critiques to eliminate hallucinations |
 | **Flakiness Detective** | Detects unstable tests across historical runs, scores flakiness, and surfaces actionable recommendations |
 | **Smart PR Routing** | An AI reads your changed files and dispatches only the relevant tests — not the full suite |
+| **Test Cases** | Structured test repository with nested folder hierarchy, human-readable IDs (AG-TC-{n}), severity levels, case types, tags, and shareable deep links to any test case view |
 | **Test Optimizer** | A dual-agent analyzer rewrites test cases into clean BDD format and removes duplicate steps |
 | **Quality Chatbot** | Ask natural-language questions about your test data — powered by a sanitized, AI-generated aggregation pipeline |
 | **Auto Bug Generation** | One click generates a structured bug report pre-filled with the AI's root cause analysis, ready to submit to Jira, Linear, or Monday.com |
