@@ -36,6 +36,9 @@ const config: Config = {
       {
         hashed: true,
         indexDocs: true,
+        // Must match the classic preset's docs.path below. The plugin defaults
+        // to "<siteDir>/docs", which does not exist (docs live at repo root).
+        docsDir: '../../docs',
         indexBlog: false,
         language: ['en'],
         highlightSearchTermsOnTargetPage: true,
