@@ -137,6 +137,40 @@ Update AI configuration (default model, BYOK keys).
 
 ---
 
+## GET `/api/organization/webhook-secret`
+
+Reports whether a PR webhook secret is configured. The secret itself is never returned.
+
+**Auth:** Admin only
+
+### Response (200 OK)
+
+```json
+{
+  "success": true,
+  "data": { "configured": true, "rotatedAt": "2026-11-09T12:00:00.000Z" }
+}
+```
+
+---
+
+## POST `/api/organization/webhook-secret`
+
+Generates or rotates the PR webhook secret. The plaintext is returned only in this response, and the previous secret stops working immediately.
+
+**Auth:** Admin only
+
+### Response (200 OK)
+
+```json
+{
+  "success": true,
+  "data": { "secret": "<64 hex characters>", "rotatedAt": "2026-11-09T12:00:00.000Z" }
+}
+```
+
+---
+
 ## GET `/api/integrations/linear`
 
 Get current Linear integration status for the organization.

@@ -31,7 +31,7 @@ When a **push** or **pull_request** event is received:
    ```
    https://api.agnox.dev/api/webhooks/ci/pr?token=<orgId>&projectId=<projectId>
    ```
-3. In **Settings → Run Settings**, generate or enter a **Webhook Secret** and save it. This secret is used to sign every GitHub delivery.
+3. In **Settings → Run Settings**, click **Generate secret** (admins only) and copy the **Webhook Secret**. It is shown only once. If you lose it, rotate it to get a new one.
 4. In your **GitHub** repository, go to **Settings → Webhooks → Add webhook**:
    - **Payload URL:** paste the copied URL
    - **Content type:** `application/json`
@@ -41,14 +41,16 @@ When a **push** or **pull_request** event is received:
 
 ### HMAC Signature Verification
 
-Every inbound push event is validated using enterprise-grade **`X-Hub-Signature-256`** HMAC verification before any processing occurs:
+Every GitHub delivery is validated using **`X-Hub-Signature-256`** HMAC verification before any processing occurs:
 
 1. GitHub signs the raw request body with your Webhook Secret using HMAC-SHA256.
-2. The Agnox backend computes the expected signature server-side using the stored (encrypted) secret.
+2. The Agnox backend decrypts the stored secret and computes the expected signature over the same raw body.
 3. The computed signature is compared using a **constant-time equality check** to prevent timing attacks.
-4. Requests without a valid `X-Hub-Signature-256` header, or with a mismatched signature, are rejected with `401 Unauthorized` — no task is dispatched.
+4. Requests without a valid signature or token are rejected with `401 Unauthorized`, and no task is dispatched.
 
-> **Setup requirement:** The `webhookSecret` field must be set in **Settings → Run Settings** and configured identically in the GitHub webhook form. Deliveries will be rejected until both sides match.
+> **Setup requirement:** A webhook secret is mandatory. Organizations without one receive `403 Forbidden` on every delivery. The `token` URL parameter only identifies your organization and is not a credential.
+>
+> **Rotation:** Generating a new secret invalidates the previous one immediately, so update your webhooks right away.
 
 ---
 
@@ -56,8 +58,9 @@ Every inbound push event is validated using enterprise-grade **`X-Hub-Signature-
 
 1. In your **GitLab** project, go to **Settings → Webhooks**.
 2. Paste the Webhook URL in the **URL** field.
-3. Under **Trigger**, check **Push events**.
-4. Click **Add webhook**.
+3. Paste your **Webhook Secret** in the **Secret token** field. GitLab sends it in the `X-Gitlab-Token` header, which Agnox compares in constant time.
+4. Under **Trigger**, check **Push events**.
+5. Click **Add webhook**.
 
 ---
 
