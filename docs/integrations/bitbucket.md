@@ -121,11 +121,10 @@ If your test suite takes longer than 10 minutes, increase the poll count or swit
 To use AI-driven test folder selection based on changed files:
 
 1. Enable **Smart PR Routing** in **Settings → Features**.
-2. Copy the webhook URL shown in **Settings → Run Settings**.
-3. In Bitbucket, go to **Repository Settings → Webhooks** and add the URL.
-4. Set the trigger to **Pull Request: Created** and **Push**.
+2. Copy the webhook URL shown in **Settings → Run Settings**, and generate a **Webhook Secret** there.
+3. Bitbucket webhook payloads do not list changed files, so add a Pipelines step that posts `changedFiles` to the webhook URL, with the secret in the `X-Agnox-Webhook-Token` header.
 
-See [Smart PR Routing →](../ai-capabilities/pr-routing) for full setup details.
+See [Smart PR Routing → Bitbucket Setup](../ai-capabilities/pr-routing#bitbucket-setup) for the pipeline step and full details.
 
 ---
 

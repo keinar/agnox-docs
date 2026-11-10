@@ -18,7 +18,7 @@ When a **push** or **pull_request** event is received:
 
 1. The webhook payload's changed files are extracted — supports `commits[].modified/added/removed` (push), custom `changedFiles[]`, and PR payloads.
 2. **CI context** (branch, commit SHA, PR URL) is extracted robustly from both event types with automatic fallbacks (`body.ref`, `body.after`, `body.head_commit.url`).
-3. If a **test manifest** (`projectTestStructures`) exists for the organization, the LLM uses it for precise file-to-test mapping. Otherwise, it falls back to folder-level heuristics.
+3. If a **test manifest** (`projectTestStructures`) exists for the project (or, for older setups, an organization-level manifest), the LLM uses it for precise file-to-test mapping. Otherwise, it falls back to folder-level heuristics.
 4. A test execution is automatically dispatched to RabbitMQ using your project's Run Settings.
 5. The webhook response includes `{ taskId, targetFolder, reasoning, dispatchedAt }` — the `reasoning` field explains why that folder was selected.
 
@@ -61,6 +61,66 @@ Every GitHub delivery is validated using **`X-Hub-Signature-256`** HMAC verifica
 3. Paste your **Webhook Secret** in the **Secret token** field. GitLab sends it in the `X-Gitlab-Token` header, which Agnox compares in constant time.
 4. Under **Trigger**, check **Push events**.
 5. Click **Add webhook**.
+
+---
+
+## Bitbucket Setup
+
+Bitbucket webhook payloads do **not** list changed files, so send the file list from a Bitbucket Pipelines step. Sign the body with the Webhook Secret (Agnox verifies `X-Hub-Signature`, the same format Bitbucket uses), or send the secret in `X-Agnox-Webhook-Token`:
+
+```yaml
+- step:
+    name: Agnox Smart PR Routing
+    script:
+      - git fetch origin "$BITBUCKET_PR_DESTINATION_BRANCH"
+      - FILES=$(git diff --name-only "origin/$BITBUCKET_PR_DESTINATION_BRANCH...HEAD" | jq -R . | jq -sc .)
+      - |
+        curl -sf -X POST "$AGNOX_PR_WEBHOOK_URL" \
+          -H "Content-Type: application/json" \
+          -H "X-Event-Key: pullrequest:updated" \
+          -H "X-Agnox-Webhook-Token: $AGNOX_WEBHOOK_SECRET" \
+          -d "{\"changedFiles\": $FILES, \"repository\": {\"full_name\": \"$BITBUCKET_REPO_FULL_NAME\"}, \"pullrequest\": {\"source\": {\"branch\": {\"name\": \"$BITBUCKET_BRANCH\"}, \"commit\": {\"hash\": \"$BITBUCKET_COMMIT\"}}}}"
+```
+
+Store `AGNOX_PR_WEBHOOK_URL` and `AGNOX_WEBHOOK_SECRET` as secured repository variables. The `X-Event-Key` header labels the run as **Bitbucket**. A native Bitbucket webhook (**Repository Settings → Webhooks**, with the Webhook Secret in the **Secret** field) is authenticated and its branch, commit and PR link are recorded. Without a `changedFiles` list, though, the delivery is acknowledged with `dispatched: false` and nothing runs.
+
+---
+
+## Azure DevOps Setup
+
+Azure DevOps service hooks cannot sign payloads, so authenticate with the Webhook Secret instead:
+
+1. In your Azure DevOps project, go to **Project Settings → Service hooks → Create subscription → Web Hooks**.
+2. Choose **Pull request created** / **Pull request updated** (or **Code pushed**).
+3. Paste the Webhook URL, and either:
+   - set **Basic authentication password** to the Webhook Secret (any username), or
+   - add the HTTP header `X-Agnox-Webhook-Token:<Webhook Secret>`.
+
+Like Bitbucket, Azure DevOps payloads do not list changed files. Send `changedFiles` from an Azure Pipelines step, keeping the `eventType`/`resource` fields so the run is labelled **Azure DevOps** with its branch, commit and PR link:
+
+```yaml
+- script: |
+    FILES=$(git diff --name-only "origin/$(System.PullRequest.TargetBranchName)...HEAD" | jq -R . | jq -sc .)
+    curl -sf -X POST "$(AGNOX_PR_WEBHOOK_URL)" \
+      -H "Content-Type: application/json" \
+      -H "X-Agnox-Webhook-Token: $(AGNOX_WEBHOOK_SECRET)" \
+      -d "{\"changedFiles\": $FILES, \"eventType\": \"git.pullrequest.updated\", \"resource\": {\"pullRequestId\": $(System.PullRequest.PullRequestId), \"sourceRefName\": \"$(System.PullRequest.SourceBranch)\", \"lastMergeSourceCommit\": {\"commitId\": \"$(Build.SourceVersion)\"}}}"
+  displayName: Agnox Smart PR Routing
+```
+
+---
+
+## Authentication Reference
+
+| Provider | Credential Agnox checks |
+|---|---|
+| GitHub | `X-Hub-Signature-256: sha256=<HMAC of raw body>` |
+| Bitbucket | `X-Hub-Signature: sha256=<HMAC of raw body>` |
+| GitLab | `X-Gitlab-Token: <secret>` |
+| Azure DevOps | Basic auth with the secret as the password, or `X-Agnox-Webhook-Token: <secret>` |
+| Any other CI | `X-Hub-Signature-256` HMAC, or `X-Agnox-Webhook-Token: <secret>` |
+
+The first credential present decides: if a signature is sent and is wrong, the delivery is rejected even if a valid token is also present. All comparisons are constant-time.
 
 ---
 
@@ -112,6 +172,8 @@ If omitted, the group name defaults to `'Smart-PR-Run'`.
 ## Test Manifest Seeding
 
 If you have seeded your project's test structure via the `projectTestStructures` collection, the LLM prompt dynamically incorporates the full manifest for precise file-to-test routing (e.g., mapping `src/auth/login.ts` → `tests/auth/login.spec.ts`). Without a manifest, the LLM uses generic folder heuristics.
+
+The worker refreshes the manifest after every run, keyed by `{ organizationId, projectId }`, so projects in the same organization keep separate manifests. A manifest written before this scoping (no `projectId`) is still used as a fallback until the project's next run writes its own.
 
 ---
 
