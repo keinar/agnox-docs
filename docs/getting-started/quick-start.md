@@ -88,10 +88,17 @@ if [ -f .env ]; then
 fi
 
 # Run tests
+# Match the container's CPU quota: Agnox injects PLAYWRIGHT_WORKERS (2 on hosted runs).
+# Without it Playwright sizes its worker pool from the host CPUs and can run out of memory.
+WORKERS_FLAG=""
+if [ -n "$PLAYWRIGHT_WORKERS" ]; then
+    WORKERS_FLAG="--workers=$PLAYWRIGHT_WORKERS"
+fi
+
 if [ -z "$FOLDER_PATH" ] || [ "$FOLDER_PATH" = "all" ]; then
-    npx playwright test
+    npx playwright test $WORKERS_FLAG
 else
-    npx playwright test "$FOLDER_PATH"
+    npx playwright test "$FOLDER_PATH" $WORKERS_FLAG
 fi
 
 # Generate Allure report

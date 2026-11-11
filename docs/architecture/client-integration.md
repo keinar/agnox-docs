@@ -85,12 +85,19 @@ fi
 
 echo "Running against BASE_URL: $BASE_URL"
 
+# Match the container's CPU quota: Agnox injects PLAYWRIGHT_WORKERS (2 on hosted runs).
+# Without it Playwright sizes its worker pool from the host CPUs and can run out of memory.
+WORKERS_FLAG=""
+if [ -n "$PLAYWRIGHT_WORKERS" ]; then
+  WORKERS_FLAG="--workers=$PLAYWRIGHT_WORKERS"
+fi
+
 if [ -z "$FOLDER" ] || [ "$FOLDER" = "all" ]; then
   echo "Running ALL tests..."
-  npx playwright test
+  npx playwright test $WORKERS_FLAG
 else
   echo "Running tests in folder: $FOLDER"
-  npx playwright test "$FOLDER"
+  npx playwright test "$FOLDER" $WORKERS_FLAG
 fi
 
 # Generate Allure HTML report from raw results
