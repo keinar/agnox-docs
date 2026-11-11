@@ -39,7 +39,6 @@ sidebar_position: 2
 - [ ] **PLATFORM_MONGO_URI** - Production MongoDB connection string with authentication
 - [ ] **PLATFORM_RABBITMQ_URL** - Production RabbitMQ connection string
 - [ ] **PLATFORM_REDIS_URL** - Production Redis connection string
-- [ ] **PLATFORM_GEMINI_API_KEY** - Google Gemini API key for AI analysis
 - [ ] **ALLOWED_ORIGINS** - Comma-separated list of allowed CORS origins
 - [ ] **PUBLIC_API_URL** - Public-facing API URL (for report links)
 
@@ -114,8 +113,7 @@ PLATFORM_RABBITMQ_URL=amqp://admin:<password>@rabbitmq-prod:5672
 # Cache (Redis)
 PLATFORM_REDIS_URL=redis://:&lt;password&gt;@redis-prod:6379
 
-# AI Analysis (Google Gemini)
-PLATFORM_GEMINI_API_KEY=<REDACTED_GOOGLE_API_KEY>
+# AI: none — BYOK-only (organizations add their key in Settings → AI Models)
 
 # API Configuration
 PUBLIC_API_URL=https://api.yourdomain.com
@@ -164,7 +162,7 @@ echo "REDIS_PASSWORD=$REDIS_PASSWORD"
 
 ```bash
 # Check all critical variables are set
-cat .env | grep -E "PLATFORM_JWT_SECRET|PLATFORM_MONGO_URI|PLATFORM_RABBITMQ_URL|PLATFORM_REDIS_URL|PLATFORM_GEMINI_API_KEY"
+cat .env | grep -E "PLATFORM_JWT_SECRET|PLATFORM_MONGO_URI|PLATFORM_RABBITMQ_URL|PLATFORM_REDIS_URL|ENCRYPTION_KEY"
 
 # Verify PLATFORM_JWT_SECRET is not default
 if grep -q "dev-secret-CHANGE-IN-PRODUCTION" .env; then

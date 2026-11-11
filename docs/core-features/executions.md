@@ -91,7 +91,7 @@ The drawer has three tabs:
 |-----|---------|
 | **Terminal** | Live log stream with auto-scroll toggle and `.txt` download |
 | **Artifacts** | Media gallery — screenshots, videos, and downloadable trace zips |
-| **AI Analysis** | AI-powered root-cause analysis for failed executions (model determined by org BYOK config or platform default) |
+| **AI Analysis** | AI-powered root-cause analysis for failed tests ("Ask AI"), shown only when the organization has its own AI key (BYOK) |
 
 > The **AI Analysis** tab is hidden when the execution status is `ERROR` — AI cannot effectively analyze platform or container launch errors.
 
@@ -154,22 +154,22 @@ AI analysis can be disabled per-organization in **Settings → Organization**.
 **Auto-Quarantine** prevents flaky tests from blocking your CI/CD pipelines.
 
 ### How it Works
-1. When a test fails **3 consecutive times**, Agnox automatically flags it as quarantined.
-2. In the **Test Cases** table, these tests appear with a prominent **QUARANTINED** badge.
-3. In the **Investigation Hub**, quarantined failures are dimmed and struck-through.
+1. Every test result is linked to a test case by a **stable test key** (spec file path + test title path), the same for hosted runs and the Playwright reporter. Outcomes are tracked **per project**.
+2. With Auto-Quarantine enabled for the project, a test whose **3 most recent runs all failed** is quarantined automatically.
+3. In the **Test Cases** table, these tests appear with a **QUARANTINED** badge; automated tests are grouped in an **Automated** folder tree that mirrors your spec paths.
+4. In the **Investigation Hub**, quarantined failures are dimmed and struck-through, and are not offered for AI analysis.
+
+### Manual Quarantine
+- Click **Quarantine** next to a failed (or retried) test in the Investigation Hub's **Tests** tab, or toggle it on the test case, to ignore its failures in future runs. Click **Un-quarantine** to lift it.
+- Manual quarantines are never lifted automatically. After a manual release, only failures that happen afterwards count toward auto-quarantine.
 
 ### Quality Gate Bypass
-The Agnox CI/CD webhook (`POST /api/webhooks/ci/pr`) implements a smart quality gate:
-- If an execution fails, but **all failed tests are currently quarantined**, the webhook will return a `PASSED` status to your CI provider (e.g., GitHub Actions).
-- This ensures that known flaky tests do not halt your deployment pipeline while your team works on a fix.
-- A test automatically "self-heals" and leaves quarantine as soon as it passes once.
+For runs reported by `@agnox/playwright-reporter`, the run's final status (returned by `POST /api/ingest/teardown`) applies a smart quality gate:
+- A **FAILED** run is reported as **PASSED** only when **every** failed, timed-out or skipped result belongs to a quarantined test **and** the server is certain it received every result (no lost event batch, result counts match the reporter's totals).
+- A run that failed outside of tests (setup/teardown, no failed test) is never turned green.
+- A test that was quarantined automatically leaves quarantine as soon as its latest run passes.
 
-> **Note:** Auto-Quarantine must be enabled in **Settings → Run Settings** for each project.
-
-:::info Important: Consistent Group Names Required
-The Auto-Quarantine mechanism relies on historical data to track consecutive failures. For the system to recognize that the *same* test is failing repeatedly across different runs, all those runs must be executed under the exact same **Execution Group** (`groupName`). 
-If you trigger tests manually without a group name, or if your CI webhook generates dynamic/different group names per run, the quarantine logic will not trigger.
-:::
+> **Note:** Auto-Quarantine must be enabled in **Settings → Run Settings** for each project. Manual quarantine works regardless of that setting.
 
 ---
 

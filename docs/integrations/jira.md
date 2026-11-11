@@ -79,9 +79,13 @@ For production use, generate the token under a dedicated Jira service-account em
 3. A modal opens pre-filled with:
    - **Summary**: test name + failure type
    - **Description**: log excerpt + execution URL
-4. Edit and click **Submit**.
+4. Edit and click **Create Ticket**.
+
+If the run already has linked Jira tickets, the modal opens on that list first; click **Create Another Ticket** to file a new one. Jira, Linear and Monday.com share the same issue-tracker modal.
 
 ### From the AI Auto Bug Modal
+
+The ✨ **Auto Bug** button appears only when AI is enabled for your organization (your own AI API key in **Settings → AI Models**).
 
 1. In the execution drawer, click the ✨ **Auto Bug** button.
 2. Agnox generates a full bug report using the AI orchestrator.

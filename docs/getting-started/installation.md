@@ -116,10 +116,9 @@ The Agnox producer service uses a **synchronous startup guard** that validates a
 
 | Variable | Description |
 |----------|-------------|
-| `PLATFORM_GEMINI_API_KEY` | Fallback Gemini API key when no org-level BYOK key is configured |
-| `PLATFORM_OPENAI_API_KEY` | Fallback OpenAI API key |
-| `PLATFORM_ANTHROPIC_API_KEY` | Fallback Anthropic API key |
 | `MONITORING_SECRET_KEY` | Shared secret for the internal `/api/system/monitor-status` endpoint |
+
+> **AI keys are not platform configuration.** Agnox is BYOK-only: each organization adds its own LLM API key in **Settings → AI Models**. `PLATFORM_*_API_KEY` environment variables are no longer read.
 
 ---
 

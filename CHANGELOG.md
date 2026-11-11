@@ -3,6 +3,37 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [3.29.0] — 2026-11-11
+
+Core Product Overhaul (Phases 1–3) and the strict BYOK-only AI policy.
+
+### Added
+- **BYOK-only AI:** AI runs only on the organization's own provider key. `GET /api/ai/models`, `GET /api/organization` and the ai-config routes expose `hasConfiguredKey` / `configuredProviders`; LLM routes return `403 { code: "AI_NOT_CONFIGURED" }` without a key, and the dashboard hides every AI entry point (`useAiAvailability()`), showing a "configure an AI API key" state on direct navigation. A key unlocks every tier (including Deep) on every plan; saving a key while the active provider has none switches to it. Smart PR Routing without a key runs all tests.
+- **AI model registry & LLM gateway** (Phase 2): provider + per-tier models (`GET /api/ai/models`), tier routing, fallback, secret redaction, usage logging; cross-run failure correlation, DOM locator self-healing, history-aware PR routing.
+- **Stability & quarantine** (Phase 3): stable cross-run test identity, per-project auto-quarantine, manual Quarantine / Un-quarantine toggle, stability grades, Automated folder tree; quality-gate bypass only when every result arrived.
+- **Opt-in CI test cycles:** `POST /api/ci/trigger` and `/api/ingest/setup` create or attach a cycle only with `createCycle: true` / `cycleId`; failed run starts roll the cycle link back. `@agnox/playwright-reporter` **2.2.0** adds the `createCycle` and `cycleId` options.
+- **Project deletion:** `DELETE /api/projects/:id` (admin, last project protected) removes config and schedules, keeps run history; Danger Zone in Settings → Run Settings.
+- **Schedule management:** `PATCH /api/schedules/:id` (edit, pause/resume) and `POST /api/schedules/:id/run-now`; next-run time and last-run status; replicas converge on edited schedules.
+- **Paginated lists:** `GET /api/test-cases` (`limit`/`offset`, `fields=summary`) and `GET /api/test-cycles` (`limit`/`offset`, `source=ci|manual`) return totals; the cycles page pages each tab on the server.
+- **UI:** unified `IssueTrackerModal` for Jira / Linear / Monday.com (linked tickets listed first for every provider); in-app toasts and confirm dialogs replace browser `alert()` / `confirm()`.
+- **Tests:** backend suites Z4–Z7 (lists, opt-in cycles, projects/schedules, scheduler engine, BYOK) and a mocked-API Playwright UI suite (`npm run test:ui`).
+- Migrations 027–031.
+
+### Changed
+- AI usage no longer has platform-key spend caps or Enterprise-only deep tier; `PLATFORM_*_API_KEY` variables are no longer read and were removed from `.env.example`, compose files, k8s and CI workflows.
+- User search is matched literally (regex-escaped) in test case and test cycle lists.
+- Docs: AI Configuration & BYOK rewritten (provider + tiers, BYOK-only, `AI_NOT_CONFIGURED`); installation, infrastructure, deployment and CI/CD docs drop platform AI keys; scheduling (pause/resume, edit, Run Now, next/last run), organization (project deletion, AI on every plan), executions (stable test keys, manual quarantine, reporter-only quality gate), test cases / test cycles (pagination, opt-in CI cycles), Playwright reporter (2.2.0 options), Jira / Linear / Monday (shared modal), API overview (new endpoints and status codes), intro, README, PUBLIC_README and PROJECT_CONTEXT (component tree, settings tabs, state management) updated.
+
+### Removed
+- Hardcoded in-app Changelog modal and its sidebar trigger (release notes live in this file).
+- `CreateJiraTicketModal`, `CreateLinearIssueModal`, `CreateMondayItemModal` (replaced by `IssueTrackerModal`).
+- Docs ghosts: platform-key fallback, "Using Platform Default" BYOK status, webhook-based quarantine bypass, group-name requirement for auto-quarantine, "No Redux/Zustand" state note.
+
+### Security (Phase 1)
+- Tenant scoping of every by-id query, live token/API-key checks, RBAC role policy, upload hardening, SSRF guard, rate limiting, worker isolation, secret redaction in logs, 12-byte GCM IVs with key rotation, idempotent billing webhooks, exactly-once run completion.
+
+---
+
 ## [3.28.0] — 2026-03-26
 
 ### Added

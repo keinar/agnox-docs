@@ -17,7 +17,7 @@ The Test Cycles page separates cycles into two tabs:
 | Tab | What it shows |
 |-----|--------------|
 | **Manual Cycles** *(default)* | Cycles created via the "Create Cycle" drawer by your QA team |
-| **CI / Automated** | Cycles generated automatically by CI/CD triggers — GitHub Actions, GitLab CI, PR webhooks, and any run carrying a `ciContext` |
+| **CI / Automated** | Cycles created by CI runs that opted in (`createCycle` / `cycleId` on `POST /api/ci/trigger` or the Playwright reporter) — any cycle carrying a `ciContext` or flagged `external-ci` |
 
 > A cycle lands on the **CI / Automated** tab when it was triggered by an external CI system (i.e., the cycle carries a `ciContext` object or is explicitly flagged as `external-ci`). All other cycles appear under **Manual Cycles**.
 
@@ -35,7 +35,7 @@ A filter bar appears between the tab navigation and the cycle table:
 | **Status dropdown** | Filter to `All Statuses`, `Pending`, `Running`, or `Completed` |
 | **Clear filters** | Resets both controls in one click |
 
-Filter state is reflected in the URL (`?search=login&status=COMPLETED`) so filtered views can be bookmarked and shared. Filters apply within the currently active tab (Manual or CI).
+Filter state is reflected in the URL (`?search=login&status=COMPLETED`) so filtered views can be bookmarked and shared. Filters apply within the currently active tab (Manual or CI). Each tab is paged on the server (50 cycles per page) and its badge shows the tab's total; search text is matched literally (special characters such as `(` or `[` are safe).
 
 ---
 

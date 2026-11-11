@@ -62,6 +62,10 @@ Monday personal tokens have full access to all boards the user can see. Use a de
 
 ---
 
+## Creating Items
+
+Open a `FAILED` or `ERROR` execution and click the **Monday.com** button in the execution drawer (or **Submit to Monday** from the AI Auto Bug modal). The shared issue-tracker modal opens; if the run already has linked items it lists them first. Edit the item name and description and click **Create Item**.
+
 ## What Gets Created
 
 When you click **Create Monday Item** from the Investigation Hub drawer or the Auto-Bug Generator, Agnox calls the Monday GraphQL API (v2024-01) and creates an item with the execution's AI-generated bug report content. The resulting item ID and URL are stored on the execution (`mondayItems[]`) so you can navigate directly from the dashboard to the board item.

@@ -64,13 +64,19 @@ Manage your subscription in **Settings → Billing & Plans**.
 | **Team Members** | 3 | 5 | 20 | 100 | Unlimited |
 | **Concurrent Runs** | 1 | 2 | 5 | 15 | Unlimited |
 | **Storage** | 500 MB | 2 GB | 10 GB | 50 GB | 500 GB |
-| **Full AI Engine** | ✅ | ✅ | ✅ | ✅ | ✅ |
+| **Full AI Engine (with your own AI key)** | ✅ | ✅ | ✅ | ✅ | ✅ |
 | **All Integrations** | ✅ | ✅ | ✅ | ✅ | ✅ |
 | **Audit Logs** | — | — | — | ✅ | ✅ |
 | **SSO** | — | — | — | — | ✅ |
 | **Support** | Community | Email | Email | Priority | Dedicated 24/7 |
 
 > Limits are enforced automatically by the backend. Upgrading takes effect immediately.
+>
+> **AI:** every plan includes all AI features and every model tier, running on your organization's own provider API key (BYOK) — add it in **Settings → AI Models**. AI stays disabled until a key is configured.
+
+### Deleting a Project (Freeing a Slot)
+
+Admins can delete a project in **Settings → Run Settings → Danger Zone** to free a project slot on their plan. After a confirmation dialog, Agnox removes the project together with its run settings, environment variables, test structure and CRON schedules. **Executions, test cases and test cycles are kept** for history and usage accounting. The organization's last remaining project cannot be deleted — create another project first.
 
 ### Storage Tracking
 

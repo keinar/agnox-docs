@@ -6,13 +6,15 @@ sidebar_position: 1
 
 # AI Configuration & BYOK
 
-The AI Quality Orchestrator is a suite of seven opt-in AI features. This page explains how to enable features and configure your LLM provider, including how to supply your own API keys.
+The AI Quality Orchestrator is a suite of opt-in AI features. This page explains how to enable features and configure your LLM provider and API key.
+
+> **BYOK-only:** Agnox runs every AI request on **your organization's own API key**. Until an admin saves a key for the active provider in **Settings → AI Models**, all AI features are disabled and their buttons are hidden across the dashboard. There is no platform-provided fallback key.
 
 ---
 
 ## Enabling AI Features
 
-All AI features are **off by default** (opt-in model). Enable them individually in **Settings → Features** under the "AI Features" section.
+All AI features are **off by default** (opt-in model). Enable them individually in **Settings → Features** under the "AI Features" section. A feature is usable only when its flag is on **and** the organization has an API key for its active provider; Settings → Features shows an "AI features are inactive" notice while no key is configured.
 
 | Feature | Feature Flag | Where to Use |
 |---------|-------------|--------------|
@@ -28,29 +30,34 @@ All AI features are **off by default** (opt-in model). Enable them individually 
 
 ## Configuring AI — BYOK (Settings → AI Models)
 
-Agnox ships with **platform-managed LLM keys** as a convenience. To use your own cloud account keys (zero extra cost to your Agnox plan), configure **Bring Your Own Key (BYOK)**:
+AI features use **your own provider API key (Bring Your Own Key)**. Settings → AI Models is always visible to admins, even while AI is disabled:
 
-1. Go to **Settings → AI Models** and scroll to the **AI Configuration** section.
-2. Under **Default AI Model**, select the model all AI features will use by default:
-   - `gemini-2.5-flash` *(default — fastest, best for most workloads)*
-   - `gpt-4o`
-   - `claude-3-5-sonnet`
-3. For each provider you want to supply your own key for, locate its row in the **Bring Your Own Key** table:
-   - Status shows **"Using Platform Default"** (grey) until a key is provided, or **"Configured"** (green) when your key is active.
-   - Paste your API key into the masked input field and click **Save Key**.
-   - To rotate or remove a key, click **Remove** — the platform fallback key is used immediately.
-4. Click **Save Settings**.
+1. Go to **Settings → AI Models**.
+2. In the **Bring Your Own Key** table, paste the API key for your provider (Google Gemini, OpenAI or Anthropic) and click **Save Key**. Each row shows **"Configured"** (green) or **"Not configured"**.
+   - If the active provider has no key yet, saving a key for another provider **switches the active provider to it**, so one step enables AI.
+   - AI entry points (Ask AI, Automation Planner, drawer AI actions, AI test generation, stability analysis) appear immediately — no reload needed.
+3. Optionally choose the **AI Provider** and a model per **tier**:
+   - **Fast** — PR test routing, log triage, chat queries
+   - **Balanced** — failure analysis, flaky-test diagnosis, test generation
+   - **Deep reasoning** — automation planning, multi-failure correlation
+
+   Your key unlocks **every tier of its provider, including Deep reasoning, on every plan**. The model list comes from the server's model registry (`GET /api/ai/models`).
+4. To rotate a key, paste a new one; to remove it, click **Remove**. Removing the key of the active provider disables AI features again.
+
+When no key is configured, AI endpoints answer **`403`** with `{ success: false, code: "AI_NOT_CONFIGURED" }`, and **Smart PR Routing** simply runs all tests without calling a model. Read-only AI views (report history, failure cluster counts, chat history) stay available.
 
 ### BYOK Provider Reference
 
 | Setting | Options | Description |
 |---------|---------|-------------|
-| **Default AI Model** | `gemini-2.5-flash`, `gpt-4o`, `claude-3-5-sonnet` | Applied to all AI features unless overridden |
-| **BYOK — Gemini** | Optional | Your Google AI Studio or Vertex AI key |
-| **BYOK — OpenAI** | Optional | Your OpenAI platform key |
-| **BYOK — Anthropic** | Optional | Your Anthropic Console key |
+| **AI Provider** | Gemini, OpenAI, Anthropic | The provider every AI call goes to (needs a key) |
+| **Tier models** | Registry models of the provider | Per-tier override of the default model (Fast / Balanced / Deep) |
+| **Cross-provider fallback** | On / Off | When on, a failing call may retry on another provider **you have a key for** |
+| **BYOK — Gemini** | Required to use Gemini | Your Google AI Studio or Vertex AI key |
+| **BYOK — OpenAI** | Required to use OpenAI | Your OpenAI API key |
+| **BYOK — Anthropic** | Required to use Anthropic | Your Anthropic Console key |
 
-> **Security:** Keys are encrypted at rest using **AES-256-GCM** before being persisted in MongoDB. Plaintext keys are never stored, logged, or returned by any API response. The `resolveLlmConfig()` utility on the server is the **only** code path that decrypts a BYOK key, and only at the moment of an LLM call.
+> **Security:** Keys are encrypted at rest using **AES-256-GCM** before being persisted in MongoDB. Plaintext keys are never stored, logged, or returned by any API response — the API only reports whether a key exists (`hasConfiguredKey`, `configuredProviders`). The server's LLM config resolver is the **only** code path that decrypts a BYOK key, and only at the moment of an LLM call.
 
 ---
 

@@ -37,18 +37,24 @@ The schedule is immediately registered in the live scheduler — no server resta
 
 ## Managing Schedules
 
-Go to **Settings → Schedules** to see all active CRON schedules for your organization:
+Go to **Settings → Schedules** to see all CRON schedules for your organization:
 
 | Column | Description |
 |--------|-------------|
-| **Name** | The schedule name / group name |
-| **CRON Expression** | The schedule interval |
-| **Environment** | Target environment for triggered runs |
-| **Folder** | Test folder path |
+| **Name** | The schedule name / group name, with its test folder |
+| **Schedule** | The CRON expression and target environment |
+| **Next run** | When the schedule fires next (server time); `—` while paused |
+| **Last run** | Status of the run it last started (e.g. PASSED / FAILED), or **NOT STARTED** when the run could not start (for example, the monthly run quota was reached — hover for the reason) |
+| **Status** | **Active** / **Paused** switch |
 
-Click **Delete** to permanently remove a schedule and cancel all future executions.
+Actions per schedule:
 
-> **Note:** Users with the **Viewer** role cannot delete schedules.
+- **Pause / Resume** — the switch stops or restarts future runs without deleting the schedule (`PATCH /api/schedules/:id` with `isActive`).
+- **Edit** — change the name, CRON expression, environment, test folder, Docker image and base URL. Invalid CRON expressions or folders are rejected with a message in the dialog.
+- **Run Now** — starts one run immediately with the schedule's current settings (works while paused; quota limits apply) — `POST /api/schedules/:id/run-now`.
+- **Delete** — asks for confirmation, then permanently removes the schedule and cancels future executions. Past executions are kept.
+
+> **Note:** Users with the **Viewer** role see schedules read-only. Deleting a project also deletes its schedules.
 
 ---
 

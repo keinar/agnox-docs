@@ -8,7 +8,7 @@ Agnox is a unified platform that integrates with your CI/CD pipelines, executes 
 
 ![Multi-Tenant](https://img.shields.io/badge/Multi--Tenant-SaaS-orange?style=flat-square)
 ![Docker](https://img.shields.io/badge/Docker-Agnostic-2496ED?style=flat-square)
-![AI](https://img.shields.io/badge/AI-BYOK%20%7C%20Gemini%20%7C%20GPT--4o%20%7C%20Claude-8e44ad?style=flat-square)
+![AI](https://img.shields.io/badge/AI-BYOK%20%7C%20Gemini%20%7C%20OpenAI%20%7C%20Claude-8e44ad?style=flat-square)
 ![Security](https://img.shields.io/badge/Security-JWT%20%2B%20RBAC-green?style=flat-square)
 ![TanStack Query](https://img.shields.io/badge/TanStack_Query-v5-FF4154?style=flat-square)
 
@@ -33,6 +33,8 @@ Agnox sits between your CI/CD pipeline and your test framework, bringing everyth
 |---|---|
 | **AI Triage** | Dual-agent LLM pipeline analyzes failures, generates a root cause, and self-critiques to eliminate hallucinations |
 | **Flakiness Detective** | Detects unstable tests across historical runs, scores flakiness, and surfaces actionable recommendations |
+| **Stability & Quarantine** | Stable per-test identity across runs, stability grades, opt-in auto-quarantine and a one-click manual quarantine — quarantined-only failures no longer block your pipeline |
+| **Failure Correlation & Locator Healing** | Clusters recurring failures across runs and classifies their cause; suggests verified replacement locators for broken selectors |
 | **Smart PR Routing** | An AI reads your changed files and dispatches only the relevant tests — not the full suite |
 | **Test Cases** | Structured test repository with nested folder hierarchy, human-readable IDs (AG-TC-{n}), severity levels, case types, tags, and shareable deep links to any test case view |
 | **Test Optimizer** | A dual-agent analyzer rewrites test cases into clean BDD format and removes duplicate steps |
@@ -45,6 +47,7 @@ Agnox sits between your CI/CD pipeline and your test framework, bringing everyth
 | **Notifications** | Configurable Slack and MS Teams webhooks deliver colour-coded execution summaries with AI analysis snippets and deep links to the Investigation Hub — each channel is independent and per-status configurable |
 | **Linear Integration** | Create Linear issues from failed executions in one click; bidirectional linkage keeps your issue tracker in sync with your test results |
 | **Monday.com Integration** | Create Monday.com board items from the Investigation Hub or Auto-Bug Generator; description attached as an update on the item; bidirectional `mondayItems[]` linkage on each execution |
+| **Scheduling** | CRON schedules with next-run and last-run status, pause/resume, edit and Run Now |
 | **Generic Outbound Webhook** | Fire-and-forget `execution.finished` event POSTed to any HTTPS endpoint on execution completion with optional HMAC-SHA256 signing |
 
 ---
@@ -59,7 +62,7 @@ When tests fail, Agnox captures logs automatically and runs a **dual-agent LLM p
 2. A **Critic** agent evaluates the analysis against the raw logs and overrides hallucinations
 3. The final, vetted analysis is rendered as developer-facing Markdown in the Investigation Hub
 
-Your LLM key stays yours. Agnox supports **BYOK** (Bring Your Own Key) for Gemini, GPT-4o, and Claude, with a platform-default fallback.
+Your LLM key stays yours. Agnox is **BYOK-only** (Bring Your Own Key): AI features run on your organization's own Gemini, OpenAI or Anthropic key, stored encrypted. Add the key in **Settings → AI Models** to enable AI — it unlocks every model tier, including deep-reasoning models, on every plan.
 
 ### Flakiness Detective
 
@@ -173,6 +176,7 @@ export default defineConfig({
 - **Auto CI detection** — automatically attaches branch, PR number, and commit SHA from GitHub Actions, GitLab CI, Azure DevOps, and Jenkins
 - **Do No Harm** — all reporter errors are silently suppressed; your test suite is never affected
 - **Source filter** — runs appear as `External CI` in the Dashboard, separate from Docker-hosted runs
+- **Opt-in Test Cycles (v2.2.0)** — add `createCycle: true` to track a run as a Test Cycle, or `cycleId` to add it to an existing cycle; by default runs stay out of your Test Cycles list
 - **Structured failure context (v2.0)** — optionally re-export `test` from `@agnox/playwright-reporter` in your shared fixtures file; an auto-fixture captures the failure URL, page title, console errors, and failed network requests at the moment of failure and injects them directly into the AI root-cause analysis — no test file modifications required
 
 > **npm:** [`@agnox/playwright-reporter`](https://www.npmjs.com/package/@agnox/playwright-reporter)

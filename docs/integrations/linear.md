@@ -76,9 +76,13 @@ For team environments, create a dedicated Linear bot user and generate the key u
 1. Open any `FAILED` or `ERROR` execution.
 2. Click the **Create Linear Issue** button in the toolbar.
 3. A modal pre-fills the title with the test name and the description with the failure summary.
-4. Edit as needed and click **Submit**.
+4. Edit as needed and click **Create Issue**.
+
+If the run already has linked Linear issues, the modal opens on that list first; click **Create Another Issue** to file a new one. Jira, Linear and Monday.com share the same issue-tracker modal.
 
 ### From the AI Auto Bug Modal
+
+The ✨ **Auto Bug** button appears only when AI is enabled for your organization (your own AI API key in **Settings → AI Models**).
 
 1. Run **Auto Bug** on a failed execution (✨ icon in the execution drawer).
 2. Review the AI-generated summary.

@@ -22,7 +22,6 @@ Go to your GitHub Repo -> **Settings** -> **Secrets and variables** -> **Actions
 | `VPS_USER` | **Infra** | Usually `ubuntu` or `opc`. |
 | `PLATFORM_MONGO_URI` | **Infra** | Connection string for MongoDB Atlas. |
 | `PLATFORM_JWT_SECRET` | **Infra** | 64-char hex secret for JWT authentication (`openssl rand -hex 32`). |
-| `PLATFORM_GEMINI_API_KEY` | **Infra** | Fallback Gemini API key for the AI Quality Orchestrator. At least one of `PLATFORM_GEMINI_API_KEY`, `PLATFORM_OPENAI_API_KEY`, or `PLATFORM_ANTHROPIC_API_KEY` should be set. Organization BYOK keys override these at runtime. |
 | `STRIPE_SECRET_KEY` | **Infra** | Stripe API secret key for billing integration. |
 | `STRIPE_WEBHOOK_SECRET` | **Infra** | Stripe webhook endpoint secret for signature verification. |
 | `SENDGRID_API_KEY` | **Infra** | SendGrid API key for transactional email delivery. |
@@ -59,7 +58,6 @@ It uses a **HEREDOC** pattern to regenerate the `.env` file on the server during
             PLATFORM_RABBITMQ_URL=amqp://automation-rabbitmq
             PLATFORM_REDIS_URL=redis://automation-redis:6379
             PLATFORM_JWT_SECRET=${{ secrets.PLATFORM_JWT_SECRET }}
-            PLATFORM_GEMINI_API_KEY=${{ secrets.PLATFORM_GEMINI_API_KEY }}
             PLATFORM_WORKER_CALLBACK_SECRET=${{ secrets.PLATFORM_WORKER_CALLBACK_SECRET }}
             
             # --- BILLING ---
@@ -84,7 +82,7 @@ It uses a **HEREDOC** pattern to regenerate the `.env` file on the server during
 
 The Worker Service uses the platform environment variables to connect to infrastructure and external services.
 
-- **`PLATFORM_GEMINI_API_KEY`**: Used by the **Worker** (Node.js) to analyze failures.
+- **AI keys:** none. AI runs in the producer's LLM gateway on each organization's own (BYOK) key; the worker never calls an LLM.
 
 ---
 
@@ -92,7 +90,7 @@ The Worker Service uses the platform environment variables to connect to infrast
 
 | Issue | Resolution |
 | --- | --- |
-| **AI Analysis Fails** | Check that at least one AI provider key (`PLATFORM_GEMINI_API_KEY`, `PLATFORM_OPENAI_API_KEY`, or `PLATFORM_ANTHROPIC_API_KEY`) is in GitHub Secrets and present in the `.env` on the server after deploy. Also verify BYOK keys in **Settings → AI Models** are valid. |
+| **AI Analysis Fails** | AI is BYOK-only: verify the organization has a valid key for its active provider in **Settings → AI Models** (`403 AI_NOT_CONFIGURED` means no key). Also confirm `ENCRYPTION_KEY` is unchanged since the key was saved. |
 | **Billing not working** | Verify `STRIPE_SECRET_KEY` and `STRIPE_WEBHOOK_SECRET` are in GitHub Secrets and that the webhook URL is registered in Stripe dashboard. |
 | **Emails not sending** | Verify `SENDGRID_API_KEY` is valid. Check SendGrid Activity for delivery status. |
 | **"Permission denied"** | Ensure the SSH Key in GitHub Secrets matches the one on the VPS (`~/.ssh/authorized_keys`). |

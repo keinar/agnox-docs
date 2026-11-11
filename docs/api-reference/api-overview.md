@@ -64,9 +64,10 @@ x-api-key: pk_live_<your-api-key>
 | 201 | Created |
 | 400 | Bad Request (validation error) |
 | 401 | Unauthorized (missing/invalid token) |
-| 403 | Forbidden (insufficient permissions) |
+| 202 | Accepted (e.g. a schedule's Run Now was queued) |
+| 403 | Forbidden (insufficient permissions, plan limit, or `code: "AI_NOT_CONFIGURED"` — the organization has no AI API key for its active provider) |
 | 404 | Not Found |
-| 409 | Conflict (duplicate resource) |
+| 409 | Conflict (duplicate resource, or deleting the organization's last project) |
 | 429 | Too Many Requests (rate limit exceeded) |
 | 500 | Internal Server Error |
 
@@ -131,12 +132,12 @@ Clients are automatically joined to `org:<organizationId>` — events are broadc
 | **Organizations** | `/api/organization` | [Organizations API →](./organizations) |
 | **Users** | `/api/users` | [Users API →](./users) |
 | **Invitations** | `/api/invitations` | [Invitations API →](./invitations) |
-| **Executions** | `/api/executions`, `/api/execution-request`, `/api/ci/trigger` | — |
-| **Ingest** | `/api/ingest/*` | — |
-| **Test Cases** | `/api/test-cases` | — |
-| **Test Cycles** | `/api/test-cycles` | — |
-| **AI** | `/api/ai/*` | — |
-| **Schedules** | `/api/schedules` | — |
-| **Projects** | `/api/projects/:id/env` | — |
+| **Executions** | `/api/executions`, `/api/execution-request`, `/api/ci/trigger` (Test Cycle only with `createCycle` / `cycleId`) | — |
+| **Ingest** | `/api/ingest/*` (setup accepts opt-in `createCycle` / `cycleId`) | — |
+| **Test Cases** | `/api/test-cases` (`limit` / `offset`, `fields=summary`; returns `total` / `hasMore`), `/api/test-cases/quarantine` | — |
+| **Test Cycles** | `/api/test-cycles` (`limit` / `offset`, `source=ci\|manual`, literal `search`; returns `total`) | — |
+| **AI** | `/api/ai/*`, `/api/ai/models` (`hasConfiguredKey`, `configuredProviders`) — LLM routes need the org's own key (BYOK) | — |
+| **Schedules** | `/api/schedules`, `PATCH /api/schedules/:id` (edit, pause/resume via `isActive`), `POST /api/schedules/:id/run-now` | — |
+| **Projects** | `/api/projects`, `/api/projects/:id` (`DELETE` — admin, not the last project), `/api/projects/:id/env`, `/api/projects/:id/settings` | — |
 | **Integrations** | `/api/integrations/:provider`, `/api/linear/issues`, `/api/monday/items` | — |
 | **PR Routing Webhook** | `/api/webhooks/ci/pr` | — |

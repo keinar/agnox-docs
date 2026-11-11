@@ -16,7 +16,7 @@ Ensure the following are available before deployment:
 - Docker & Docker Compose installed
 - MongoDB Atlas connection string
 - Open ports for HTTP/HTTPS and RabbitMQ (if external)
-- **AI API Key:** At least one LLM API key is recommended for the AI Quality Orchestrator. Supported providers: Google Gemini (`PLATFORM_GEMINI_API_KEY`), OpenAI (`PLATFORM_OPENAI_API_KEY`), Anthropic (`PLATFORM_ANTHROPIC_API_KEY`). Organization-level BYOK keys can override platform defaults at runtime.
+- **AI API Keys:** None at the server level. AI is BYOK-only: each organization adds its own Gemini, OpenAI or Anthropic key in **Settings → AI Models** (stored AES-256-GCM encrypted, so `ENCRYPTION_KEY` is required).
 
 ---
 
@@ -30,10 +30,7 @@ PLATFORM_MONGO_URI=mongodb+srv://<user>:<pass>@cluster.mongodb.net/automation_pl
 PLATFORM_RABBITMQ_URL=amqp://automation-rabbitmq
 PLATFORM_REDIS_URL=redis://automation-redis:6379
 
-# AI Configuration (at least one provider key recommended)
-PLATFORM_GEMINI_API_KEY=<REDACTED_GOOGLE_API_KEY>
-# PLATFORM_OPENAI_API_KEY=<REDACTED_OPENAI_KEY>
-# PLATFORM_ANTHROPIC_API_KEY=<REDACTED_ANTHROPIC_KEY>
+# AI: no server keys — organizations add their own key in Settings → AI Models
 
 # Encryption (CRITICAL — exactly 32 characters / 64 hex chars)
 ENCRYPTION_KEY=<64-char-hex-string>
@@ -86,7 +83,7 @@ Once deployed:
 | Issue | Resolution |
 | --- | --- |
 | **Tests fail instantly** | Verify execution config in **Settings → Run Settings**. |
-| **No AI Analysis** | Check if at least one AI provider key is set (`PLATFORM_GEMINI_API_KEY`, `PLATFORM_OPENAI_API_KEY`, or a BYOK key in **Settings → AI Models**). |
+| **No AI Analysis** | AI is BYOK-only: the organization needs its own key for its active provider in **Settings → AI Models**. AI buttons stay hidden and AI endpoints return `403 AI_NOT_CONFIGURED` until then. |
 | **Container exits immediately** | Check `entrypoint.sh` permissions. |
 | **Status stuck on ANALYZING** | Check Worker logs for LLM provider timeouts or invalid API keys. |
 | **Producer service refuses to start** | Verify `ENCRYPTION_KEY` (exactly 32 chars / 64 hex), `PLATFORM_JWT_SECRET`, and `PLATFORM_MONGO_URI` are all set. |

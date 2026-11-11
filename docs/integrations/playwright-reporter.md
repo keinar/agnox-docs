@@ -18,6 +18,17 @@ Stream live Playwright results directly to your Agnox dashboard from your existi
 
 Results appear under the **External CI** source filter in the Dashboard.
 
+### Test Cycles are opt-in (2.2.0+)
+
+Runs are recorded as executions only, so CI does not flood the **Test Cycles** page. To also track a run as a Test Cycle:
+
+- `createCycle: true` — creates a new cycle for the run (named after `runName`); it appears on the **CI / Automated** tab and completes when the run finishes.
+- `cycleId: '<id>'` — adds the run as an item of an **existing** cycle in the same project (takes precedence over `createCycle`); the cycle's summary is recounted from all its items.
+
+An unknown or foreign `cycleId` is rejected (`400` / `404`) before anything is recorded.
+
+> **Upgrading from 2.1.x or earlier:** older versions created a Test Cycle for every run automatically. Pass `createCycle: true` to keep that behaviour.
+
 ---
 
 ## Installation

@@ -22,6 +22,8 @@ A filter bar appears between the page header and the test case list:
 
 Filter state is reflected in the URL (`?search=login&type=MANUAL`) so filtered views can be bookmarked and shared. Switching project from the global header preserves active filters.
 
+> **Large suites:** the list loads a lightweight view of each test case (no steps or long text) and opens the full record when you select it. Up to 2,000 test cases load at once; beyond that a notice suggests selecting a folder to narrow the list.
+
 ---
 
 ## Test Case IDs
