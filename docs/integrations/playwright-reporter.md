@@ -45,6 +45,8 @@ export default defineConfig({
       projectId: process.env.AGNOX_PROJECT_ID!,
       // environment: 'staging',    // optional: 'development' | 'staging' | 'production'
       // runName: 'nightly suite',  // optional: label shown in the Dashboard
+      // createCycle: true,          // optional (2.2.0+): also create a Test Cycle for this run
+      // cycleId: '<cycle id>',      // optional (2.2.0+): add this run to an existing Test Cycle
       // debug: true,               // optional: logs reporter activity to stdout
     }],
   ],

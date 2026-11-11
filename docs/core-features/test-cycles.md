@@ -89,11 +89,14 @@ Click the delete icon on any cycle row and confirm the dialog.
 
 ## CI/CD Trigger Integration
 
-You can create a test cycle directly from your CI pipeline using `POST /api/ci/trigger`. The cycle appears in **Test Cycles** with a name derived from the repository and PR number (e.g., `myorg/my-repo #42`).
+CI runs create Test Cycles only when you opt in, so automated pipelines don't flood this page:
 
-See [Running & Managing Executions →](./executions#option-c-cicd-trigger) for the full request format.
+- **`POST /api/ci/trigger`** — pass `"createCycle": true` to create a cycle named after the repository and PR number (e.g., `CI Run: myorg/my-repo #42`), or `"cycleId": "<id>"` to add the run as an item of an existing cycle in the same project.
+- **`@agnox/playwright-reporter`** (2.2.0+) — set `createCycle: true` or `cycleId` in the reporter options.
 
-Triggered cycles automatically appear on the **CI / Automated** tab.
+Without either option the run still appears under **Executions**. See [Running & Managing Executions →](./executions#option-c-cicd-trigger) for the full request format.
+
+Cycles created this way appear on the **CI / Automated** tab.
 
 ---
 

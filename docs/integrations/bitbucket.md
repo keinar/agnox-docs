@@ -80,7 +80,7 @@ pipelines:
             - agnox_response.json
 ```
 
-The endpoint returns `{ cycleId, taskId, status: "PENDING" }`. The cycle appears immediately in **Test Cycles** in the Agnox dashboard.
+By default the run is recorded under **Executions** only and the response is `{ taskId, status: "PENDING" }`. Add `"createCycle": true` to also create a Test Cycle for the run (the response then includes `cycleId`), or `"cycleId": "<existing cycle id>"` to add the run to an existing cycle in the same project.
 
 ---
 
