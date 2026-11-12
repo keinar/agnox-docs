@@ -633,32 +633,58 @@ The system test runner (`tests/`) enforces strict timeouts to protect worker cap
 
 These settings ensure that a single stuck test cannot hold a worker container indefinitely, which is critical in a shared multi-tenant environment.
 
-### Monitoring Endpoint
+### Status and Monitoring Endpoints
 
-`GET /api/system/monitor-status` provides a machine-readable signal for external uptime monitors (UptimeRobot, BetterStack, etc.) that powers [status.agnox.dev](https://status.agnox.dev).
+| Endpoint | Auth | Purpose |
+|---|---|---|
+| `GET /health` | Public | Uptime monitors (UptimeRobot, BetterStack) and container health checks: `200` healthy, `503` degraded. |
+| `GET /api/status` | Public | Powers [status.agnox.dev](https://status.agnox.dev). Component states only (Producer, Workers, MongoDB, Redis, RabbitMQ); always `200`. |
+| `GET /api/system/monitor-status` | `X-Agnox-Monitor-Secret` | Ops tooling: queue depth and worker count. |
 
-**Authentication:** The endpoint requires a valid `X-Agnox-Monitor-Secret` header. This header value must match the `MONITORING_SECRET_KEY` environment variable configured on the server. Requests with a missing or incorrect value receive `401 Unauthorized`. This prevents public enumeration of internal service health details.
+All three read the same infrastructure check (`services/platform-health.ts`), which is cached for a few seconds so public callers cannot open a RabbitMQ channel per request. None returns tenant data.
+
+**Public status response:**
+```json
+{
+  "success": true,
+  "data": {
+    "status": "operational",
+    "checkedAt": "2026-11-12T10:00:00.000Z",
+    "components": {
+      "producer": "operational",
+      "workers": "operational",
+      "mongodb": "operational",
+      "redis": "operational",
+      "rabbitmq": "operational"
+    }
+  }
+}
+```
+
+**Ops monitoring** requires a valid `X-Agnox-Monitor-Secret` header matching `MONITORING_SECRET_KEY`; a missing or incorrect value receives `401 Unauthorized`.
 
 ```bash
-# Example health probe
 curl -s \
   -H "X-Agnox-Monitor-Secret: <your-monitor-secret>" \
   https://api.agnox.dev/api/system/monitor-status
 ```
 
-**Example Response:**
 ```json
 {
   "success": true,
+  "status": "ok",
+  "timestamp": "2026-11-12T10:00:00.000Z",
   "data": {
-    "status": "healthy",
-    "version": "3.5.0",
-    "timestamp": "2026-02-27T10:00:00.000Z"
+    "queueDepth": 3,
+    "activeWorkers": 5,
+    "dbConnected": true,
+    "redisConnected": true,
+    "rabbitConnected": true
   }
 }
 ```
 
-**Infrastructure note:** Add `MONITORING_SECRET_KEY` to your `.env` and to the GitHub Actions deployment secrets. The monitoring service (UptimeRobot / BetterStack) should be configured with the same secret value as a custom HTTP header in its check configuration.
+**Infrastructure note:** `MONITORING_SECRET_KEY` belongs in `.env` and the deployment secrets only. The public status page does not use it and must never contain it.
 
 ### Automated Test Image Lifecycle
 

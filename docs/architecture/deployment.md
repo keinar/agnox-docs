@@ -697,31 +697,62 @@ docker exec -it automation-redis redis-cli INFO memory
 # Expected: Memory usage statistics
 ```
 
-### 3. System Health Endpoint (v3.5.0)
+### 3. Status and Health Endpoints
 
-The `GET /api/system/monitor-status` endpoint provides a machine-readable health signal for external uptime monitors. It powers [status.agnox.dev](https://status.agnox.dev).
+| Endpoint | Auth | Use it for |
+|---|---|---|
+| `GET /health` | Public | Uptime monitors: `200` healthy, `503` when MongoDB, Redis or RabbitMQ is down. |
+| `GET /api/status` | Public | The status page at [status.agnox.dev](https://status.agnox.dev). |
+| `GET /api/system/monitor-status` | `X-Agnox-Monitor-Secret` | Ops tooling (queue depth, worker count). |
 
-**Required environment variable:** Set `MONITORING_SECRET_KEY` in your `.env` to a secure random string (min 32 chars):
+**Uptime monitor setup (e.g., UptimeRobot / BetterStack):**
+1. Create an HTTP(S) monitor pointing to `https://api.agnox.dev/health`.
+2. Alert on any status code other than `200`.
+
+**Status page:** `status-dashboard.html` is served as a static page and calls `GET /api/status`. It needs no secret.
+
 ```bash
-MONITORING_SECRET_KEY=$(openssl rand -hex 32)
+curl -s https://api.agnox.dev/api/status
+# { "success": true, "data": { "status": "operational", "checkedAt": "...", "components": { ... } } }
 ```
 
-**Probe the endpoint:**
+**Ops endpoint:** set `MONITORING_SECRET_KEY` in your `.env` to a secure random string (min 32 chars):
 ```bash
+MONITORING_SECRET_KEY=$(openssl rand -hex 32)
+
 curl -s \
   -H "X-Agnox-Monitor-Secret: $MONITORING_SECRET_KEY" \
   https://api.agnox.dev/api/system/monitor-status
-# Expected:
-# { "success": true, "data": { "status": "healthy", "version": "3.5.0", "timestamp": "..." } }
+# { "success": true, "status": "ok", "timestamp": "...",
+#   "data": { "queueDepth": 0, "activeWorkers": 5, "dbConnected": true, "redisConnected": true, "rabbitConnected": true } }
 ```
 
-**Uptime monitor setup (e.g., UptimeRobot / BetterStack):**
-1. Create a new HTTP(S) monitor pointing to `https://api.agnox.dev/api/system/monitor-status`.
-2. Add a custom HTTP header: `X-Agnox-Monitor-Secret: <your-secret>`.
-3. Set the expected keyword or status code to `"healthy"` / `200`.
-4. Connect to your status page at `status.agnox.dev`.
+> **Security:** never put `MONITORING_SECRET_KEY` in a page, script or repository a browser can load. Earlier deployments wrote it into the public status page; if yours did, rotate the key.
 
-> **Security:** Never expose `MONITORING_SECRET_KEY` publicly. Requests without a valid header receive `401 Unauthorized`. This ensures the health endpoint cannot be used for information gathering by unauthorized parties.
+### 3a. Super-Admin Console (platform operators)
+
+The console at `/super-admin` (API: `/api/super-admin/*`) is for platform operators: organization overview, manual plan override, organization deletion, platform health and read-only "View As Org".
+
+**Enable it**
+
+1. Make sure the operator's account already exists (sign up normally first).
+2. Add its login email to `PLATFORM_SUPER_ADMIN_EMAILS` (comma-separated; GitHub secret of the same name for the VPS deploy) and redeploy.
+
+Sign-up is refused for any email on the list, because email ownership is not verified at sign-up. Leave the variable empty to disable the console. API keys never grant operator access.
+
+**What is recorded** — every operator action writes to `audit_logs`, filed under the organization that was acted on, with `actorEmail` and `actorOrganizationId`:
+
+| Action | When |
+|---|---|
+| `super_admin.plan_changed` | Manual plan override (previous plan, new plan, reason) |
+| `super_admin.org_deleted` | Organization deleted (name, counts, whether it was forced) |
+| `super_admin.view_as_started` / `view_as_ended` | Operator entered / left an organization |
+| `super_admin.view_as_read` | Reads while viewing, at most once per 15 minutes per operator and organization |
+| `super_admin.view_as_blocked` | A change attempted while viewing (always rejected) |
+
+Run `npx tsx migrations/032-super-admin-audit-index.ts` once per environment (adds the `{ action, timestamp }` index on `audit_logs`).
+
+**Rotate `MONITORING_SECRET_KEY` after this release.** Earlier deploys wrote it into the public status page.
 
 ### 3. Error Monitoring (First 24 Hours)
 

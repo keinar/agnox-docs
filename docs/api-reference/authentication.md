@@ -143,6 +143,8 @@ Authorization: Bearer <jwt-token>
 
 ---
 
+> **`isSuperAdmin`** (boolean) is part of `data`. It is `true` only for a login session whose email is listed in the server's `PLATFORM_SUPER_ADMIN_EMAILS`; API keys are never super-admins. The dashboard uses it to show the Super Admin console link.
+
 ## POST `/api/auth/logout`
 
 Logout (client-side token removal).
