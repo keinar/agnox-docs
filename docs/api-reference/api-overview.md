@@ -13,7 +13,6 @@ Complete REST API reference for Agnox. All endpoints return a consistent respons
 | Environment | URL |
 |-------------|-----|
 | **Production** | `https://api.agnox.dev` |
-| **Development** | `http://localhost:3000` |
 
 ---
 
@@ -31,7 +30,7 @@ Authorization: Bearer <jwt-token>
 x-api-key: pk_live_<your-api-key>
 ```
 
-> **Generate API keys:** Settings → Profile → API Access. Keys are shown only once at creation.
+> **Generate API keys:** Settings → Profile → API Access, or `POST /api/auth/api-keys` ([CI & Webhooks API →](./ci-and-webhooks#api-keys)). Keys are shown only once at creation.
 
 ---
 
@@ -62,14 +61,15 @@ x-api-key: pk_live_<your-api-key>
 |------|---------|
 | 200 | Success |
 | 201 | Created |
+| 202 | Accepted (e.g. a schedule's Run Now was queued) |
 | 400 | Bad Request (validation error) |
 | 401 | Unauthorized (missing/invalid token) |
-| 202 | Accepted (e.g. a schedule's Run Now was queued) |
-| 403 | Forbidden (insufficient permissions, plan limit, or `code: "AI_NOT_CONFIGURED"` — the organization has no AI API key for its active provider) |
+| 403 | Forbidden (insufficient permissions, monthly run quota exceeded, or `code: "AI_NOT_CONFIGURED"` — the organization has no AI API key for its active provider) |
 | 404 | Not Found |
 | 409 | Conflict (duplicate resource, or deleting the organization's last project) |
-| 429 | Too Many Requests (rate limit exceeded) |
+| 429 | Too Many Requests (rate limit exceeded, or storage limit reached) |
 | 500 | Internal Server Error |
+| 503 | Service temporarily unavailable — retry shortly |
 
 ---
 
@@ -128,16 +128,16 @@ Clients are automatically joined to `org:<organizationId>` — events are broadc
 
 | Category | Base Path | Reference |
 |----------|-----------|-----------|
+| **API Keys, CI Trigger & PR Webhook** | `/api/auth/api-keys`, `/api/ci/trigger`, `/api/webhooks/ci/pr` | [CI & Webhooks API →](./ci-and-webhooks) |
 | **Authentication** | `/api/auth` | [Auth API →](./authentication) |
 | **Organizations** | `/api/organization` | [Organizations API →](./organizations) |
 | **Users** | `/api/users` | [Users API →](./users) |
 | **Invitations** | `/api/invitations` | [Invitations API →](./invitations) |
-| **Executions** | `/api/executions`, `/api/execution-request`, `/api/ci/trigger` (Test Cycle only with `createCycle` / `cycleId`) | — |
-| **Ingest** | `/api/ingest/*` (setup accepts opt-in `createCycle` / `cycleId`) | — |
+| **Executions** | `GET /api/executions` (`limit` 1–100, `offset`, `status`) | [CI & Webhooks API →](./ci-and-webhooks#list-executions) |
+| **Playwright Reporter ingest** | `/api/ingest/*` — used by `@agnox/playwright-reporter`; you don't call it directly | [Playwright Reporter →](../integrations/playwright-reporter) |
 | **Test Cases** | `/api/test-cases` (`limit` / `offset`, `fields=summary`; returns `total` / `hasMore`), `/api/test-cases/quarantine` | — |
 | **Test Cycles** | `/api/test-cycles` (`limit` / `offset`, `source=ci\|manual`, literal `search`; returns `total`) | — |
-| **AI** | `/api/ai/*`, `/api/ai/models` (`hasConfiguredKey`, `configuredProviders`) — LLM routes need the org's own key (BYOK) | — |
-| **Schedules** | `/api/schedules`, `PATCH /api/schedules/:id` (edit, pause/resume via `isActive`), `POST /api/schedules/:id/run-now` | — |
+| **AI** | `/api/ai/*` — requires your organization's own provider key (BYOK) | [AI Configuration →](../ai-capabilities/configuration) |
+| **Schedules** | `/api/schedules`, `PATCH /api/schedules/:id` (edit, pause/resume via `isActive`), `POST /api/schedules/:id/run-now` | [Scheduling →](../core-features/scheduling) |
 | **Projects** | `/api/projects`, `/api/projects/:id` (`DELETE` — admin, not the last project), `/api/projects/:id/env`, `/api/projects/:id/settings` | — |
 | **Integrations** | `/api/integrations/:provider`, `/api/linear/issues`, `/api/monday/items` | — |
-| **PR Routing Webhook** | `/api/webhooks/ci/pr` | — |

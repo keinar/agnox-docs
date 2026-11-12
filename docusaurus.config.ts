@@ -53,7 +53,6 @@ const config: Config = {
         docs: {
           path: '../../docs',
           sidebarPath: './sidebars.ts',
-          editUrl: 'https://github.com/keinar/Agnostic-Automation-Center/tree/main/',
         },
         blog: false,
         theme: {
@@ -130,8 +129,8 @@ const config: Config = {
               to: '/docs/api-reference/api-overview',
             },
             {
-              label: 'Deployment',
-              to: '/docs/architecture/deployment',
+              label: 'Playwright Reporter',
+              to: '/docs/integrations/playwright-reporter',
             },
           ],
         },

@@ -49,7 +49,7 @@ Filter state is reflected in the URL (`?search=login&status=COMPLETED`) so filte
 6. *(Optional)* Enable **Include Automated Test Run** — requires Docker image and base URL to be configured in Settings → Run Settings.
 7. Click **Launch Cycle**.
 
-> When launched, **AUTOMATED items** are immediately pushed to RabbitMQ for execution. **MANUAL items** remain `PENDING` until a QA engineer executes them.
+> When launched, **AUTOMATED items** are immediately queued for execution. **MANUAL items** remain `PENDING` until a QA engineer executes them.
 
 ---
 
@@ -94,7 +94,7 @@ CI runs create Test Cycles only when you opt in, so automated pipelines don't fl
 - **`POST /api/ci/trigger`** — pass `"createCycle": true` to create a cycle named after the repository and PR number (e.g., `CI Run: myorg/my-repo #42`), or `"cycleId": "<id>"` to add the run as an item of an existing cycle in the same project.
 - **`@agnox/playwright-reporter`** (2.2.0+) — set `createCycle: true` or `cycleId` in the reporter options.
 
-Without either option the run still appears under **Executions**. See [Running & Managing Executions →](./executions#option-c-cicd-trigger) for the full request format.
+Without either option the run still appears under **Executions**. See [Running & Managing Executions →](./executions#cicd-trigger) for the full request format.
 
 Cycles created this way appear on the **CI / Automated** tab.
 

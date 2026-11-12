@@ -29,7 +29,7 @@ Stage 2 — Deep Dive (on demand, for selected tests only)
   POST /api/ai/automation-planner/generate
   ↓ Fetches full step data ONLY for selected tests
   ↓ LLM generates a complete Markdown automation strategy document
-  ↓ Saved to automationPlans collection for future retrieval
+  ↓ Saved to your plan history for future retrieval
 ```
 
 ---
@@ -78,7 +78,7 @@ Use the **Copy** button (clipboard icon) or **Download as .md** to save the arti
 
 ## Plan History
 
-Click **History** in the page header to open the saved plans sidebar. Click any previous plan to re-open its Markdown artifact — no LLM call is made, it loads instantly from the `automationPlans` MongoDB collection.
+Click **History** in the page header to open the saved plans sidebar. Click any previous plan to re-open its Markdown artifact — no LLM call is made, it loads instantly from your saved history.
 
 ---
 
@@ -110,7 +110,7 @@ All endpoints require standard JWT auth. `discover` and `generate` require `aiFe
 
 ## Security
 
-- Every MongoDB query enforces `{ organizationId, projectId }` — cross-tenant access is structurally impossible.
+- Every data access is scoped to your organization and project — cross-tenant access is structurally impossible.
 - The `projectId` is verified against the calling org before any data is fetched.
 - After the Stage 2 DB fetch, all returned documents are re-validated to belong to the calling org (defence-in-depth).
 - Test steps are embedded as structured JSON in the LLM prompt — never raw string interpolation — to neutralise prompt injection via test step content.
@@ -122,4 +122,3 @@ All endpoints require standard JWT auth. `discover` and `generate` require `aiFe
 - [AI Configuration & BYOK →](./configuration)
 - [Spec-to-Test Generation →](./spec-to-test)
 - [Smart Test Optimizer →](./test-optimizer)
-- [Technical Design Document →](../architecture/phase-6-ai-automation-planner)

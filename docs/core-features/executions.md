@@ -21,24 +21,9 @@ The execution engine is the heart of Agnox. This guide covers triggering test ru
 5. *(Optional)* Enter a **Group Name** — use the smart combobox to select an existing group (appends to it) or type a new name to create one.
 6. Click **Start Execution**.
 
-### Option B: Via API
+### Option B: Via API / CI/CD {#cicd-trigger}
 
-```bash
-curl -X POST https://api.agnox.dev/api/executions \
-  -H "x-api-key: YOUR_API_KEY" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "image": "your-dockerhub-user/my-tests:latest",
-    "command": "npx playwright test",
-    "environment": "staging",
-    "baseUrl": "https://staging.myapp.com",
-    "folder": "tests/e2e"
-  }'
-```
-
-### Option C: CI/CD Trigger
-
-Use `POST /api/ci/trigger` to start a run from your pipeline and pass CI context for automatic naming and traceability:
+Use `POST /api/ci/trigger` with an [API key](../api-reference/ci-and-webhooks#api-keys) to start an Agnox Hosted Run from a script or pipeline, and pass CI context for automatic naming and traceability:
 
 ```bash
 curl -X POST https://api.agnox.dev/api/ci/trigger \
@@ -66,6 +51,8 @@ By default the run is recorded under **Executions** only and the response is `{ 
 
 **Find your Project ID:** Settings → Run Settings → select your project → copy the **Project ID** shown in the Execution Defaults section.
 
+Full field reference: [CI & Webhooks API →](../api-reference/ci-and-webhooks). Each hosted run counts toward your plan's monthly **Agnox Hosted Runs** quota; runs reported by the Playwright Reporter count toward **External CI Runs**.
+
 ---
 
 ## Execution Status Lifecycle
@@ -74,7 +61,7 @@ By default the run is recorded under **Executions** only and the response is `{ 
 PENDING → RUNNING → ANALYZING → PASSED / FAILED / UNSTABLE / ERROR
 ```
 
-- **PENDING** — queued in RabbitMQ, waiting for a Worker
+- **PENDING** — queued, waiting for a runner
 - **RUNNING** — Worker has started the Docker container; logs are streaming
 - **ANALYZING** — container has exited; AI root-cause analysis is in progress
 - **PASSED / FAILED / UNSTABLE / ERROR** — terminal state
@@ -94,6 +81,19 @@ The drawer has three tabs:
 | **AI Analysis** | AI-powered root-cause analysis for failed tests ("Ask AI"), shown only when the organization has its own AI key (BYOK) |
 
 > The **AI Analysis** tab is hidden when the execution status is `ERROR` — AI cannot effectively analyze platform or container launch errors.
+
+### Artifacts of External CI Runs
+
+Runs reported by `@agnox/playwright-reporter` (2.3.0 or later) have the same **Artifacts** tab as hosted runs. The reporter uploads the screenshots, videos and traces Playwright attached to failed tests to `POST /api/ingest/artifacts`, and Agnox stores them next to the artifacts of hosted runs.
+
+| Rule | Value |
+|------|-------|
+| Which tests | Failed and timed-out tests by default (`uploadArtifacts: 'failed-only'`); `'all'` or `'none'` in the reporter options |
+| File types | `.png`, `.jpg`, `.jpeg`, `.webp`, `.webm`, `.mp4`, `.zip` (traces), `.md`, `.txt`, `.json` — the content must match the extension |
+| Per file | 25 MB |
+| Per run | 150 MB |
+| Storage | Every upload counts toward the organization's storage at once; when the quota is used up the API answers `429` and the reporter stops uploading for that run |
+| Retention | Removed with the run by the daily retention cleanup |
 
 ---
 

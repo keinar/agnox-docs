@@ -59,11 +59,13 @@ API keys authenticate CI/CD pipelines without sharing personal credentials.
 3. Enter a label (e.g., "GitHub Actions").
 4. **Copy the key immediately** — it is only displayed once.
 
-Store the key as a CI/CD secret (e.g., `AGNOX_API_KEY`). Use it in requests:
+Store the key as a CI/CD secret (e.g., `AGNOX_API_KEY`). Send it in the `x-api-key` header:
 
 ```bash
-curl -H "x-api-key: pk_live_..." https://api.agnox.dev/api/executions
+curl -H "x-api-key: pk_live_..." "https://api.agnox.dev/api/executions?limit=10"
 ```
+
+See the [CI & Webhooks API →](../api-reference/ci-and-webhooks) for triggering runs with the key.
 
 ---
 
@@ -95,30 +97,6 @@ Store per-project credentials and configuration values securely in **Settings �
 - Variables are **encrypted at rest** using AES-256-GCM before being stored.
 - At runtime, they are injected directly into your test container, eliminating the need for local `.env` files containing test credentials.
 - Mark sensitive values (passwords, tokens) as **Secret** — they are redacted from streamed logs.
-
----
-
-## Backend Startup Requirements
-
-The Agnox producer service uses a **synchronous startup guard** that validates all critical environment variables at process boot. If any required variable is absent or malformed, the process exits with a non-zero code before accepting any connections — preventing silent misconfiguration in production.
-
-### Strictly Required Environment Variables
-
-| Variable | Format | Description |
-|----------|--------|-------------|
-| `ENCRYPTION_KEY` | Exactly **32 characters** (hex or ASCII) | AES-256-GCM key for encrypting integration secrets, BYOK API keys, and project env var secrets. The startup guard enforces the exact length — any deviation causes an immediate startup failure. |
-| `PLATFORM_JWT_SECRET` | Any non-empty string (≥ 32 chars recommended) | Signs all user JWT access tokens. Rotation requires all active sessions to re-authenticate. |
-| `PLATFORM_MONGO_URI` | Valid MongoDB connection string | Primary database connection. The startup guard validates that a ping succeeds before the HTTP server binds to its port. |
-
-> **Self-hosting:** All three variables must be set in your deployment environment (e.g., `docker-compose.yml`, Kubernetes Secret, or `.env`). The platform will refuse to start without them.
-
-### Optional Platform Keys
-
-| Variable | Description |
-|----------|-------------|
-| `MONITORING_SECRET_KEY` | Shared secret for the internal `/api/system/monitor-status` endpoint |
-
-> **AI keys are not platform configuration.** Agnox is BYOK-only: each organization adds its own LLM API key in **Settings → AI Models**. `PLATFORM_*_API_KEY` environment variables are no longer read.
 
 ---
 

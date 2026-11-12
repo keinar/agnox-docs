@@ -58,12 +58,14 @@ Manage your subscription in **Settings → Billing & Plans**.
 
 | Feature | Free | Starter | Team | Business | Enterprise |
 |---------|------|---------|------|----------|------------|
-| **Price** | $0/mo | $29/mo | $99/mo | $299/mo | Custom |
-| **Test Runs/Month** | 50 | 250 | 1,000 | 2,500 | Unlimited |
+| **Price** | $0/mo | $39/mo | $99/mo | $249/mo | Custom |
+| **Hosted Runs/Month** | 15 | 75 | 250 | 800 | Unlimited |
+| **External CI Runs/Month** | 250 | 1,500 | 5,000 | 20,000 | Unlimited |
 | **Projects** | 1 | 3 | Unlimited | Unlimited | Unlimited |
 | **Team Members** | 3 | 5 | 20 | 100 | Unlimited |
-| **Concurrent Runs** | 1 | 2 | 5 | 15 | Unlimited |
-| **Storage** | 500 MB | 2 GB | 10 GB | 50 GB | 500 GB |
+| **Concurrent Hosted Runs** | 1 | 2 | 4 | 8 | Unlimited |
+| **Storage** | 1 GB | 5 GB | 15 GB | 50 GB | Custom |
+| **History Retention** | 7 days | 14 days | 30 days | 90 days | Custom |
 | **Full AI Engine (with your own AI key)** | ✅ | ✅ | ✅ | ✅ | ✅ |
 | **All Integrations** | ✅ | ✅ | ✅ | ✅ | ✅ |
 | **Audit Logs** | — | — | — | ✅ | ✅ |
@@ -71,6 +73,12 @@ Manage your subscription in **Settings → Billing & Plans**.
 | **Support** | Community | Email | Email | Priority | Dedicated 24/7 |
 
 > Limits are enforced automatically by the backend. Upgrading takes effect immediately.
+>
+> **Hosted vs. external CI runs:** a *hosted run* executes your test image in an Agnox container (dashboard, CI trigger, PR webhook, schedules, test cycles). An *external CI run* is reported by `@agnox/playwright-reporter` from your own pipeline. Each has its own monthly counter; both reset on the first day of the month, and deleting a run does not give its slot back.
+>
+> **Concurrent runs:** hosted runs above your plan's concurrency stay queued (`PENDING`) and start as earlier ones finish.
+>
+> **History retention:** runs older than your plan's retention, and runs you delete, are removed by a daily cleanup together with their reports, screenshots, videos and traces.
 >
 > **AI:** every plan includes all AI features and every model tier, running on your organization's own provider API key (BYOK) — add it in **Settings → AI Models**. AI stays disabled until a key is configured.
 
@@ -80,11 +88,11 @@ Admins can delete a project in **Settings → Run Settings → Danger Zone** to 
 
 ### Storage Tracking
 
-Agnox tracks your data usage in real time:
-- **Live tracking:** every execution finish atomically increments your organisation's storage counter.
-- **Nightly reconciliation:** a background job runs at **02:00 UTC** using MongoDB `$bsonSize` aggregation to correct any drift from deletions or failed increments.
+Agnox tracks your data usage (run records, reports and artifacts) in **Settings → Billing & Plans**:
+- **Live tracking:** every finished run, and every artifact uploaded by the Playwright Reporter, is added to your storage usage immediately.
+- **Daily recalculation:** usage is recalculated every night, so space freed by deleted or expired runs (after your retention window) is reflected the next day.
 
-When your storage limit is reached, new execution requests are blocked with a `429 Storage limit exceeded` response until storage is freed or you upgrade.
+When your storage limit is reached, new runs are rejected with `429 Storage limit reached` until storage is freed or you upgrade.
 
 ### Upgrading
 
@@ -130,8 +138,11 @@ Click **Manage Subscription** to access the Stripe Customer Portal:
 
 ## Billing FAQ
 
-**When does my billing period reset?**
-Monthly periods align with your subscription start date. Test run counters reset on that date.
+**When do my run quotas reset?**
+Your **Agnox Hosted Runs** and **External CI Runs** counters reset on the **1st day of every calendar month**, independent of your billing date. Your subscription itself renews monthly on your subscription start date.
+
+**What happens to old runs?**
+Runs older than your plan's retention window (7 / 14 / 30 / 90 days for Free / Starter / Team / Business) are deleted automatically by a daily cleanup, together with their reports and artifacts. Upgrading extends retention for runs that haven't been deleted yet.
 
 **Are there prorated charges?**
 - **Upgrades:** Yes, prorated charge for the remaining period

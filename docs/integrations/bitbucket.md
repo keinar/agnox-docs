@@ -62,15 +62,16 @@ pipelines:
                 -d '{
                   "projectId": "'"$AGNOX_PROJECT_ID"'",
                   "image": "your-dockerhub-user/my-tests:latest",
+                  "command": "npx playwright test",
                   "folder": "tests/e2e",
                   "config": {
                     "environment": "staging",
                     "baseUrl": "https://staging.yourapp.com"
                   },
                   "ciContext": {
-                    "source": "bitbucket",
+                    "source": "webhook",
                     "repository": "'"$BITBUCKET_REPO_FULL_NAME"'",
-                    "prNumber": '"$BITBUCKET_PR_ID"',
+                    "prNumber": '"${BITBUCKET_PR_ID:-0}"',
                     "commitSha": "'"$BITBUCKET_COMMIT"'"
                   }
                 }')

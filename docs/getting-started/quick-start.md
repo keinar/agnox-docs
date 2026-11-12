@@ -21,7 +21,9 @@ Agnox supports two distinct ways to run and observe your tests:
 | **CI pipeline** | Optional (trigger via Dashboard, API, or CI webhook) | Required |
 | **Best for** | Full isolation, multi-framework, scheduled runs | Teams already running Playwright in GitHub Actions, GitLab CI, or locally |
 
-> **Not sure which to choose?** Start with the **Passive Reporter** (Option D below) if you already run Playwright in a CI pipeline — it requires zero infrastructure changes.
+> **Not sure which to choose?** Start with the **Passive Reporter** (Option C below) if you already run Playwright in a CI pipeline — it requires zero infrastructure changes.
+>
+> Each mode has its own monthly quota on your plan: **Agnox Hosted Runs** and **External CI Runs**. See [Plans & Quotas →](../core-features/organization#billing--plans).
 
 ---
 
@@ -100,25 +102,24 @@ if [ -z "$FOLDER_PATH" ] || [ "$FOLDER_PATH" = "all" ]; then
 else
     npx playwright test "$FOLDER_PATH" $WORKERS_FLAG
 fi
-
-# Generate Allure report
-npx allure generate allure-results --clean -o allure-report
 ```
+
+> Agnox generates the Allure report from `allure-results` for you — no `allure generate` step needed.
 
 Create `Dockerfile`:
 
 ```dockerfile
-FROM mcr.microsoft.com/playwright:v1.40.0-jammy
+# Use the Playwright image matching the @playwright/test version in package.json
+FROM mcr.microsoft.com/playwright:v1.50.0-jammy
 WORKDIR /app
 
 COPY package*.json ./
 RUN npm ci
-RUN npm install -g allure-commandline
 
 COPY . .
 RUN chmod +x /app/entrypoint.sh
 
-# Do NOT add ENTRYPOINT or CMD — the Agnox Worker injects them at runtime
+# Do NOT add ENTRYPOINT or CMD — Agnox starts /app/entrypoint.sh itself
 ```
 
 Configure your test framework to read `BASE_URL` from the environment:
@@ -138,10 +139,15 @@ export default defineConfig({
 
 ### Step 2 — Build & Push
 
+Build a multi-arch image so it runs natively on every Agnox runner:
+
 ```bash
-docker build -t your-dockerhub-user/my-automation:latest .
-docker push your-dockerhub-user/my-automation:latest
+docker buildx create --use   # one-time
+docker buildx build --platform linux/amd64,linux/arm64 \
+  -t your-dockerhub-user/my-automation:latest --push .
 ```
+
+> A plain `docker build` only targets the architecture of the machine you build on. See [Docker Setup →](../integrations/docker-setup) for details.
 
 ### Step 3 — Create Account & Configure Project
 
@@ -158,21 +164,7 @@ docker push your-dockerhub-user/my-automation:latest
 
 **Via Dashboard:** Click **Run Test** → select project and environment → **Start Execution**.
 
-**Via API:**
-```bash
-curl -X POST https://api.agnox.dev/api/executions \
-  -H "x-api-key: YOUR_API_KEY" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "image": "your-dockerhub-user/my-automation:latest",
-    "command": "npx playwright test",
-    "environment": "staging",
-    "baseUrl": "https://staging.myapp.com",
-    "folder": "tests/e2e"
-  }'
-```
-
-**Via GitHub Actions:**
+**Via GitHub Actions (or any CI):**
 ```yaml
 name: Run E2E Tests
 on: [push]
@@ -183,12 +175,13 @@ jobs:
     steps:
       - name: Trigger Tests via Agnox
         run: |
-          curl -X POST https://api.agnox.dev/api/ci/trigger \
+          curl -sS --fail-with-body -X POST https://api.agnox.dev/api/ci/trigger \
             -H "Content-Type: application/json" \
             -H "x-api-key: ${{ secrets.AGNOX_API_KEY }}" \
             -d '{
               "projectId": "${{ secrets.AGNOX_PROJECT_ID }}",
               "image": "your-dockerhub-user/my-automation:latest",
+              "command": "npx playwright test",
               "folder": "tests/e2e",
               "config": { "environment": "staging", "baseUrl": "${{ secrets.TARGET_URL }}" },
               "ciContext": {
@@ -200,16 +193,18 @@ jobs:
             }'
 ```
 
+See the [CI & Webhooks API →](../api-reference/ci-and-webhooks) for every field.
+
 ---
 
-## Option D: Native Playwright Reporter (No Docker Required)
+## Option C: Native Playwright Reporter (No Docker Required)
 
 Stream live results from your existing Playwright setup directly to Agnox — no Docker image, no container provisioning.
 
 ### Step 1 — Install
 
 ```bash
-npm install --save-dev @agnox/playwright-reporter
+npm install -D @agnox/playwright-reporter
 ```
 
 ### Step 2 — Configure Playwright
@@ -241,7 +236,6 @@ export default defineConfig({
 steps:
   - uses: actions/checkout@v4
   - run: npm ci
-  - run: npm run build -w @agnox/playwright-reporter
   - run: npx playwright install --with-deps
   - name: Run Playwright tests
     env:
@@ -250,7 +244,7 @@ steps:
     run: npx playwright test
 ```
 
-Results appear in the Dashboard under the **External CI** source filter.
+Results appear in the Dashboard under the **External CI** source filter. From v2.3.0, **screenshots, videos and traces of failed tests upload automatically** to the run's Artifacts tab (`uploadArtifacts: 'failed-only'` by default; `'all'` or `'none'` to change it; 25 MB per file, 150 MB per run).
 
 **Zero-Crash Guarantee:** If the Agnox API is unreachable or your credentials are wrong, the reporter silently becomes a no-op. Your CI pipeline will never fail because of this reporter.
 
@@ -269,11 +263,10 @@ Results appear in the Dashboard under the **External CI** source filter.
 - Enable `debug: true` in reporter config to see what it's attempting
 
 ### `MODULE_NOT_FOUND` for `@agnox/playwright-reporter` in CI
-```yaml
-- run: npm ci
-- run: npm run build -w @agnox/playwright-reporter   # add this
-- run: npx playwright test
-```
+The package is not installed where Playwright runs. Add it to `devDependencies` with `npm install -D @agnox/playwright-reporter` and run `npm ci` before `npx playwright test`.
+
+### Image Has No Build for the Runner's Platform
+Rebuild with `docker buildx build --platform linux/amd64,linux/arm64 ... --push`.
 
 ---
 

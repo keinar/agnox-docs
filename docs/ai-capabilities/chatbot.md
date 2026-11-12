@@ -20,7 +20,7 @@ Ask natural-language questions about your test data and receive instant answers 
    - *"What's the pass rate for the checkout group?"*
    - *"Which test images have the highest failure count this month?"*
    - *"Show me a breakdown of test results by environment for February 2026."*
-3. The AI translates your question into a MongoDB aggregation pipeline and executes it securely against your organization's data.
+3. The AI translates your question into a read-only database query and executes it securely against your organization's data.
 4. The summarized answer appears as an assistant message.
 5. When the response includes numeric comparisons or grouped counts, a **bar chart** is rendered inline.
 6. Previous conversations appear in the **left panel** — click any session to continue a prior chat.
@@ -57,19 +57,19 @@ Every incoming message is scanned against a denylist of known prompt injection p
 - Phrases designed to override the system prompt (e.g., `ignore previous instructions`, `you are now`, `disregard your instructions`, `act as`, `jailbreak`) are detected and the request is rejected with `400 Bad Request`.
 - The denylist is case-insensitive and covers Unicode lookalike variants.
 
-### Layers 1–5 — Pipeline Sanitizer (`sanitizePipeline()`)
+### Layers 1–5 — Query Sanitizer
 
-Every LLM-generated MongoDB aggregation pipeline passes through a mandatory **5-layer guard** (`utils/chat-sanitizer.ts`) before execution:
+Every AI-generated query passes through a mandatory **5-layer guard** before execution:
 
 | Layer | What it does |
 |-------|--------------|
-| **1. Stage allowlist** | Rejects any stage not in the approved set (`$match`, `$group`, `$project`, `$sort`, `$limit`, `$count`, `$addFields`, `$unwind`, etc.). `$out`, `$merge`, `$function`, `$where` are always blocked. |
-| **2. Force `organizationId`** | Overwrites the `organizationId` in the first `$match` stage with the authenticated user's org ID — the LLM output cannot read another org's data. |
-| **3. `$limit` cap** | Appends `{ $limit: 500 }` if absent; clamps any `$limit` above 1,000 to 1,000. |
-| **4. Collection whitelist** | Only allows queries against `executions` and `test_cycles` — no access to `users`, `organizations`, or other collections. |
-| **5. Operator scan** | Recursively scans all values for `$`-prefixed strings in field-name positions that are not in the operator allowlist. |
+| **1. Read-only operations** | Only read/aggregate operations are allowed — any write, merge or code-execution operation is rejected. |
+| **2. Forced tenant scope** | Your organization's ID is always injected by the server — the AI output cannot read another organization's data. |
+| **3. Result cap** | Results are capped at 1,000 rows. |
+| **4. Data allowlist** | Only executions and test cycles can be queried — never users, organizations, or credentials. |
+| **5. Operator scan** | Every query value is scanned recursively for disallowed operators. |
 
-A `PipelineSanitizationError` is thrown (→ `400`) on any violation. The sanitized pipeline — never the raw LLM output — is what executes against MongoDB.
+Any violation rejects the request with `400`. Only the sanitized query — never the raw AI output — is executed.
 
 ---
 
@@ -85,8 +85,8 @@ A `PipelineSanitizationError` is thrown (→ `400`) on any violation. The saniti
 
 The chatbot uses a two-step pipeline for accuracy and security:
 
-1. **Turn 1 — Translator:** Converts the natural-language question into a `{ collection, pipeline }` MongoDB aggregation plan.
-2. **Turn 2 — Summarizer:** Executes the sanitized pipeline against the database, then summarizes the results into a human-readable answer with optional `chartData`.
+1. **Turn 1 — Translator:** Converts the natural-language question into a structured read-only query.
+2. **Turn 2 — Summarizer:** Executes the sanitized query, then summarizes the results into a human-readable answer with optional `chartData`.
 
 ---
 

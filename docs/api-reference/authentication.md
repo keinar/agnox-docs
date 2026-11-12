@@ -105,7 +105,7 @@ Authenticate user and return JWT token.
 ### Account Lockout
 
 - **Threshold:** 5 failed attempts within 15 minutes
-- **Lockout Duration:** 15 minutes (Redis TTL)
+- **Lockout Duration:** 15 minutes
 - **Reset:** Automatic after lockout expires, or on successful login
 
 ---
@@ -134,7 +134,7 @@ Authorization: Bearer <jwt-token>
       "id": "507f191e810c19729de860ea",
       "name": "Acme Corp",
       "plan": "free",
-      "limits": { "maxProjects": 1, "maxTestRuns": 50, "maxUsers": 3, "maxConcurrentRuns": 1, "maxStorageBytes": 524288000 },
+      "limits": { "maxProjects": 1, "maxHostedRuns": 15, "maxExternalRuns": 250, "retentionDays": 7, "maxUsers": 3, "maxConcurrentRuns": 1, "maxStorageBytes": 1073741824 },
       "aiAnalysisEnabled": true
     }
   }
@@ -142,8 +142,6 @@ Authorization: Bearer <jwt-token>
 ```
 
 ---
-
-> **`isSuperAdmin`** (boolean) is part of `data`. It is `true` only for a login session whose email is listed in the server's `PLATFORM_SUPER_ADMIN_EMAILS`; API keys are never super-admins. The dashboard uses it to show the Super Admin console link.
 
 ## POST `/api/auth/logout`
 

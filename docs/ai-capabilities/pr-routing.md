@@ -18,8 +18,8 @@ When a **push** or **pull_request** event is received:
 
 1. The webhook payload's changed files are extracted — supports `commits[].modified/added/removed` (push), custom `changedFiles[]`, and PR payloads.
 2. **CI context** (branch, commit SHA, PR URL) is extracted robustly from both event types with automatic fallbacks (`body.ref`, `body.after`, `body.head_commit.url`).
-3. If a **test manifest** (`projectTestStructures`) exists for the project (or, for older setups, an organization-level manifest), the LLM uses it for precise file-to-test mapping. Otherwise, it falls back to folder-level heuristics.
-4. A test execution is automatically dispatched to RabbitMQ using your project's Run Settings.
+3. If a **test manifest** exists for the project, the AI uses it for precise file-to-test mapping. Otherwise, it falls back to folder-level heuristics.
+4. A test execution is automatically queued using your project's Run Settings.
 5. The webhook response includes `{ taskId, targetFolder, reasoning, dispatchedAt }` — the `reasoning` field explains why that folder was selected.
 
 ---
@@ -169,11 +169,11 @@ If omitted, the group name defaults to `'Smart-PR-Run'`.
 
 ---
 
-## Test Manifest Seeding
+## Test Manifest
 
-If you have seeded your project's test structure via the `projectTestStructures` collection, the LLM prompt dynamically incorporates the full manifest for precise file-to-test routing (e.g., mapping `src/auth/login.ts` → `tests/auth/login.spec.ts`). Without a manifest, the LLM uses generic folder heuristics.
+Agnox builds a **test manifest** for each project automatically: after every Agnox Hosted Run, the structure of your test suite is recorded, and Smart PR Routing uses it for precise file-to-test routing (e.g., mapping `src/auth/login.ts` → `tests/auth/login.spec.ts`). Until a project has completed its first hosted run, the AI uses generic folder heuristics.
 
-The worker refreshes the manifest after every run, keyed by `{ organizationId, projectId }`, so projects in the same organization keep separate manifests. A manifest written before this scoping (no `projectId`) is still used as a fallback until the project's next run writes its own.
+Manifests are kept per project, so projects in the same organization never share routing data.
 
 ---
 

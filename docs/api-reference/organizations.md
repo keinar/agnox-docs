@@ -30,10 +30,13 @@ Get current organization details.
     "plan": "free",
     "limits": {
       "maxProjects": 1,
-      "maxTestRuns": 50,
+      "maxHostedRuns": 15,
+      "maxExternalRuns": 250,
+      "maxTestRuns": 15,
+      "retentionDays": 7,
       "maxUsers": 3,
       "maxConcurrentRuns": 1,
-      "maxStorageBytes": 524288000,
+      "maxStorageBytes": 1073741824,
       "currentStorageUsedBytes": 0
     },
     "userCount": 2,
@@ -43,6 +46,8 @@ Get current organization details.
   }
 }
 ```
+
+> **Limits:** `maxHostedRuns` is the monthly **Agnox Hosted Runs** quota and `maxExternalRuns` the monthly **External CI Runs** quota (both reset on the 1st of each calendar month). `retentionDays` is your plan's history retention (7 / 14 / 30 / 90). `maxTestRuns` is a **deprecated** alias of `maxHostedRuns`, kept for backward compatibility — don't use it in new integrations.
 
 ---
 
@@ -96,20 +101,24 @@ Get usage statistics for the current billing period.
       "startDate": "2026-02-01T00:00:00.000Z",
       "endDate": "2026-02-28T23:59:59.999Z"
     },
-    "testRuns": { "used": 45, "limit": 100, "percentUsed": 45 },
+    "hostedRuns": { "used": 6, "limit": 15, "percentUsed": 40 },
+    "externalRuns": { "used": 45, "limit": 250, "percentUsed": 18 },
+    "testRuns": { "used": 6, "limit": 15, "percentUsed": 40 },
     "users": { "active": 2, "limit": 3 },
     "storage": { "usedBytes": 524288000, "limitBytes": 10737418240 }
   },
   "alerts": [
     {
       "type": "warning",
-      "resource": "testRuns",
-      "message": "You've used 80% of your monthly test runs",
+      "resource": "hostedRuns",
+      "message": "You've used 80% of your monthly hosted runs",
       "percentUsed": 80
     }
   ]
 }
 ```
+
+`hostedRuns` counts runs executed in an Agnox container, `externalRuns` runs reported by `@agnox/playwright-reporter`; each has its own monthly limit. `testRuns` is a deprecated alias of `hostedRuns`. A `limit` of `-1` means unlimited.
 
 ### Alert Types
 
@@ -287,7 +296,7 @@ Create a Monday.com board item from an execution.
 }
 ```
 
-The `itemId` and `itemUrl` are appended to `execution.mondayItems[]` in MongoDB.
+The `itemId` and `itemUrl` are linked to the execution and shown in its details.
 
 ---
 
@@ -338,7 +347,7 @@ Create a Linear issue from an execution and record the link bidirectionally.
 }
 ```
 
-The `issueId` and `issueUrl` are appended to `execution.linearIssues[]` in MongoDB for bidirectional traceability.
+The `issueId` and `issueUrl` are linked to the execution for bidirectional traceability.
 
 ---
 

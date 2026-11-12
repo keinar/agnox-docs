@@ -6,9 +6,30 @@ sidebar_position: 1
 
 # AI Configuration & BYOK
 
-The AI Quality Orchestrator is a suite of opt-in AI features. This page explains how to enable features and configure your LLM provider and API key.
+The AI Quality Orchestrator is a suite of opt-in AI features powered by **your own LLM provider key**. This page explains the BYOK model, how to configure your provider, and how to enable each feature.
 
 > **BYOK-only:** Agnox runs every AI request on **your organization's own API key**. Until an admin saves a key for the active provider in **Settings → AI Models**, all AI features are disabled and their buttons are hidden across the dashboard. There is no platform-provided fallback key.
+
+### Why BYOK?
+
+- **Zero markup** — AI usage is billed by your provider (Google, OpenAI or Anthropic) directly at their prices. Agnox adds no AI surcharge, and AI features are available on **every plan**.
+- **Encrypted at rest** — keys are encrypted with **AES-256-GCM** and are never shown again, logged, or returned by the API.
+- **Your choice of model** — pick a provider and a model per capability tier: **Fast**, **Balanced**, **Deep reasoning**.
+
+---
+
+## AI Capabilities at a Glance
+
+| Capability | What it does | Docs |
+|------------|-------------|------|
+| **Root Cause Analysis** | Explains why a run failed, clusters related failures and suggests locator fixes | [Executions →](../core-features/executions) |
+| **Auto-Bug Generation** | Drafts a ready-to-file bug report (Jira or Linear) from a failed run | [Auto-Bug →](./auto-bug) |
+| **Flakiness Detective** | Scores test stability and diagnoses flaky tests | [Flakiness Detective →](./flakiness-detective) |
+| **Smart PR Routing** | Runs only the tests affected by a PR | [Smart PR Routing →](./pr-routing) |
+| **Spec-to-Test** | Turns a requirements document into test cases | [Spec-to-Test →](./spec-to-test) |
+| **Automation Planner** | Prioritizes manual tests and generates an automation strategy | [Automation Planner →](./automation-planner) |
+| **Smart Test Optimizer** | Deduplicates and improves manual test cases | [Test Optimizer →](./test-optimizer) |
+| **Quality Chatbot** | Answers questions about your test data in plain language | [Quality Chatbot →](./chatbot) |
 
 ---
 
@@ -18,6 +39,7 @@ All AI features are **off by default** (opt-in model). Enable them individually 
 
 | Feature | Feature Flag | Where to Use |
 |---------|-------------|--------------|
+| Root Cause Analysis | `rootCauseAnalysis` | Execution drawer (failed runs), Failure Clusters on the Stability page |
 | Auto-Bug Generator | `autoBugGeneration` | Investigation Hub drawer |
 | Flakiness Detective | `flakinessDetective` | Stability page (sidebar) |
 | Smart Test Optimizer | `testOptimizer` | Bulk Actions bar in Test Cases |
@@ -41,7 +63,7 @@ AI features use **your own provider API key (Bring Your Own Key)**. Settings →
    - **Balanced** — failure analysis, flaky-test diagnosis, test generation
    - **Deep reasoning** — automation planning, multi-failure correlation
 
-   Your key unlocks **every tier of its provider, including Deep reasoning, on every plan**. The model list comes from the server's model registry (`GET /api/ai/models`).
+   Your key unlocks **every tier of its provider, including Deep reasoning, on every plan**. The model list shows the models currently supported for your provider.
 4. To rotate a key, paste a new one; to remove it, click **Remove**. Removing the key of the active provider disables AI features again.
 
 When no key is configured, AI endpoints answer **`403`** with `{ success: false, code: "AI_NOT_CONFIGURED" }`, and **Smart PR Routing** simply runs all tests without calling a model. Read-only AI views (report history, failure cluster counts, chat history) stay available.
@@ -57,7 +79,7 @@ When no key is configured, AI endpoints answer **`403`** with `{ success: false,
 | **BYOK — OpenAI** | Required to use OpenAI | Your OpenAI API key |
 | **BYOK — Anthropic** | Required to use Anthropic | Your Anthropic Console key |
 
-> **Security:** Keys are encrypted at rest using **AES-256-GCM** before being persisted in MongoDB. Plaintext keys are never stored, logged, or returned by any API response — the API only reports whether a key exists (`hasConfiguredKey`, `configuredProviders`). The server's LLM config resolver is the **only** code path that decrypts a BYOK key, and only at the moment of an LLM call.
+> **Security:** Keys are encrypted at rest using **AES-256-GCM** before they are stored. Plaintext keys are never stored, logged, or returned by any API response — the API only reports whether a key exists. A key is decrypted only at the moment of an AI call made on your behalf.
 
 ---
 

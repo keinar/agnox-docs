@@ -63,10 +63,10 @@ The 4-stage pipeline runs and streams progress to your browser:
 |-------|-------|-------------|
 | 1 | Reading document… | File text extracted; requirements structured into `IRequirementBlock[]` by the Extractor LLM |
 | 2 | Generating test drafts… | Generator LLM drafts `IDraftTestCase[]` per requirement in the selected style |
-| 3 | Reviewing for accuracy… | Critic LLM deduplicates against existing tests in the project (via MongoDB `$text` search) and removes hallucinated or vague steps |
+| 3 | Reviewing for accuracy… | Critic LLM deduplicates against existing tests in the project and removes hallucinated or vague steps |
 | 4 | Formatting test cases… | Approved drafts are transformed into the canonical `ITestCase` shape |
 
-Each stage shows a progress indicator — `Loader2` spinner transitions to `CheckCircle2` on completion.
+Each stage shows a progress indicator that turns into a check mark on completion.
 
 ### Step 3 — Review & Import
 
@@ -101,7 +101,7 @@ event: error
 data: { "message": "Stage 2 (Generator) returned invalid JSON. Please retry." }
 ```
 
-The connection uses `reply.hijack()` to bypass Fastify's response lifecycle and stream directly, avoiding proxy timeout issues on long-running pipelines.
+Long-running pipelines stream progress continuously, so they are not cut off by proxy timeouts.
 
 ---
 
@@ -109,8 +109,8 @@ The connection uses `reply.hijack()` to bypass Fastify's response lifecycle and 
 
 Stage 3 (Critic) performs a two-layer deduplication before the LLM review:
 
-1. **Suite-scoped pre-filter:** Fetches existing test case titles for the target suites in the project via a MongoDB query.
-2. **`$text` search:** For new suites, runs a full-text search on `test_cases.title` (text index created in Migration 011).
+1. **Suite-scoped pre-filter:** Fetches existing test case titles for the target suites in the project.
+2. **Full-text search:** For new suites, searches existing test case titles across the project.
 
 The LLM Critic then receives both the draft cases and the pre-filtered existing titles, and is instructed to drop any draft that is a duplicate, hallucinated, or untestable.
 
@@ -122,7 +122,7 @@ The LLM Critic then receives both the draft cases and the pre-filtered existing 
 |-------|-------------|
 | "Import from Spec" button not visible | `specToTest` feature flag is off, or you have Viewer role |
 | Stage 1 returns 0 requirements | Document text could not be parsed — ensure the file is not scanned/image-only |
-| Stage 3 `$text` search failed warning | Migration 011 has not been run — apply `npx tsx migrations/011-add-spec-to-test-flag.ts` |
+| "Search failed" warning during Stage 3 | Deduplication search is temporarily unavailable — results may include duplicates; retry later or contact support if it persists |
 | All tests dropped by Critic | Most drafts were duplicates of existing test cases in the project |
 
 ---
