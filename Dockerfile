@@ -4,7 +4,7 @@
 # ============================================
 
 # Stage 1: Build the Docusaurus static site
-FROM node:20-alpine AS builder
+FROM node:22-alpine AS builder
 
 # Set base workdir to replicate monorepo root
 WORKDIR /app
@@ -12,14 +12,18 @@ WORKDIR /app
 # Copy the root docs folder to /app/docs
 COPY docs ./docs
 
+# Root manifest + lockfile: the install is reproducible from the root lockfile
+COPY package.json package-lock.json ./
+
 # Copy apps/docs to /app/apps/docs (preserving monorepo structure)
 COPY apps/docs ./apps/docs
 
+# Install only the docs workspace from the root lockfile. No --legacy-peer-deps: with it
+# npm skips peer dependencies the lockfile records (react-router) and the build fails.
+RUN npm ci -w apps-docs
+
 # Change to the docs app directory (where package.json lives)
 WORKDIR /app/apps/docs
-
-# Install dependencies
-RUN npm install
 
 # Build the static site
 # Now ../../docs correctly resolves to /app/docs
