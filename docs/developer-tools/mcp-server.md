@@ -30,6 +30,8 @@ The server talks only to the [Public API v1](../api-reference/public-api-v1.md).
 | `AGNOX_API_URL` | No | `https://api.agnox.dev` | The Agnox API, for a self-hosted install. Must be `https://`; plain `http://` is accepted only for `localhost`, `127.0.0.1` and `[::1]`. No credentials, query or fragment. Redirects are never followed, so the key cannot leak to another host. |
 | `AGNOX_PROJECT_ID` | No | | Default project for tools that take a `projectId` |
 
+The server also reads these from a `.env` file in its working directory, and from credentials saved with [`agnox login`](./cli.md#log-in-once), using the same rules as the CLI. Variables in the `env` block always win.
+
 > **Keep keys out of git.** If you commit an MCP config file, reference the key through an environment variable (Claude Code expands `${AGNOX_API_KEY}` in `.mcp.json`). Otherwise keep the file in your user-level config.
 
 ---
@@ -221,5 +223,6 @@ The result counts `created`, `alreadyLinked` and `skipped`. Calling it again is 
 | `403 FORBIDDEN` on quarantine or sync | The key belongs to a Viewer. Use a Developer or Admin key. |
 | `403 FEATURE_DISABLED` on `list_failure_clusters` | Enable Root Cause Analysis for the organization. |
 | `projectId is required` | Pass a `projectId`, or set `AGNOX_PROJECT_ID` in the server's `env`. |
+| `… answered with a web page (HTML) …` | `AGNOX_API_URL` points at the dashboard (for example `https://agnox.dev`), not the API. Use `https://api.agnox.dev`, or remove the variable to use the default. |
 | `429` errors | You hit the [API rate limit](../api-reference/public-api-v1.md#rate-limits). Wait a minute and retry. |
 | Server doesn't start | Check `node --version` is 20 or later. Run `npx -y @agnox/mcp-server` in a terminal to see the error on stderr. |

@@ -38,18 +38,38 @@ npx agnox --help
 
 ## Configuration
 
-The CLI reads its settings from the environment:
+The CLI uses three settings:
 
 | Variable | Required | Default | Purpose |
 |---|---|---|---|
 | `AGNOX_API_KEY` | **Yes** | | API key from **Settings → My Profile → API keys** |
-| `AGNOX_API_URL` | No | `https://api.agnox.dev` | Your Agnox API, for a self-hosted install (`https://` only, except for localhost) |
+| `AGNOX_API_URL` | No | `https://api.agnox.dev` | The Agnox **API** host, for a self-hosted install (`https://` only, except for localhost). Not the dashboard URL. A trailing `/api`, `/api/v1` or `/api/executions/ingest` is removed. |
 | `AGNOX_PROJECT_ID` | No | | Default project, used when `--project` is omitted |
 
+They are read from these places, in this order:
+
+1. **Environment variables**, which always win.
+2. **A `.env` file in the current directory.** Only the three names above are read, and nothing in your environment is overridden.
+3. **Credentials saved by `agnox login`.**
+
+### Log in once
+
 ```bash
-export AGNOX_API_KEY="<your key>"
-export AGNOX_PROJECT_ID="<project id>"
+agnox login --api-key "<your key>"
+# Logged in to api.agnox.dev (3 projects). Saved to /home/you/.agnox/config.json
 ```
+
+`agnox login` checks the key against the API first and saves nothing if the key is rejected. For a self-hosted install, add `--api-url https://agnox.example.com`. The file is created readable by your user only (mode `0600` on macOS and Linux). Delete `~/.agnox/config.json` to log out.
+
+### Or use a `.env` file
+
+```bash
+# .env in your project (keep it out of git)
+AGNOX_API_KEY=<your key>
+AGNOX_PROJECT_ID=<project id>
+```
+
+> **Key and URL stay together.** An `AGNOX_API_URL` from `.env` is used only together with the `AGNOX_API_KEY` from the same file. A key from your environment or from `agnox login` is never sent to a URL that a `.env` file supplies. This way, a `.env` in a repository you cloned can't redirect your key to another server. The CLI prints a notice when it ignores such a URL.
 
 Results go to stdout and diagnostics to stderr, so you can pipe `--json` output into `jq` safely.
 
@@ -63,6 +83,7 @@ Results go to stdout and diagnostics to stderr, so you can pipe `--json` output 
 | `agnox runs failures <taskId>` | Failed tests of one run |
 | `agnox trigger` | Start a hosted run, and optionally wait for it to finish |
 | `agnox export-specs` | Write Playwright skeletons for manual test cases |
+| `agnox login` | Check an API key and save it in `~/.agnox/config.json` |
 | `agnox mcp` | Run the MCP server on stdio |
 | `agnox --help`, `agnox --version` | Usage and version |
 
