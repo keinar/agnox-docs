@@ -12,6 +12,11 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 - **Start Cycle.** A test cycle that has not started shows a **Start Cycle** button. Recording the first result also starts it, so a manual cycle no longer refuses results with "cycle is not in a RUNNING state".
 - **Stability page: Test health.** Stability grades (A–F) across the project, a **Quarantined Tests** list with one-click un-quarantine and a link to each test case, and a **Flaky Tests** list (grade C, D or F, worst first), above Recurring Failures and the AI group analysis. These lists need no AI key.
 - **Ask AI and Automation Planner previews.** Without an AI key, both pages stay in the sidebar and show how to connect your key (BYOK) with a link to Settings → AI Models, plus sample questions with answers and a sample automation plan. The samples make no AI call.
+- **A project from the first minute.** A new organization starts with a project named **My First Project**, so the quickstart (sample data, reporter setup, test case import) is the first thing a new account sees. An organization that has no project gets the same quickstart with a **Create project** step.
+- **Test Cases: resizable panes.** Drag the edge of the Folders sidebar or of the test case drawer to resize it, or focus the edge and use the arrow keys; double-click returns to the default. Agnox remembers both widths in your browser. The full-screen view is unchanged.
+- **Test Cycles follow your folders.** The cycle builder shows test cases in their folder tree, and a folder's checkbox selects everything under it, sub-folders included. An opened cycle lists its tests under the same folders. Test cases imported from Qase, TestRail, Xray, Zephyr Scale or CSV keep their folders here instead of appearing under Uncategorized.
+- **Automation Planner: folders and spec scaffolds.** The planner groups and filters manual test cases by folder, so imported cases can be scanned folder by folder. The generated plan has a **Spec Scaffolds** section: one spec file per folder with a test per manual case, its preconditions as setup, every step as a named step and every expected result as an assertion. Where a manual case does not say enough to write code, the scaffold has a TODO instead of a guess.
+- **Ask AI: project scope.** Questions are answered for the project selected in the sidebar, and the page says which one.
 
 ### Changed
 - **Artifacts tab.** A run's screenshots, videos and traces are grouped by test, each group showing the test's status and file counts, with a **Run-Level Artifacts** group for the rest. Search by test or file name and filter by type (All, Screenshots, Videos, Traces). Groups collapse, and a large run opens with only the first group expanded.
@@ -21,8 +26,16 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 - **In-app explanations.** An info icon explains Agnox Hosted, External CI, Smart PR, manual and CI test cycles, recurring failures, the stability score (A–F) and quarantine where they appear.
 - **Artifacts of a run in progress.** The Artifacts tab is available while a run is still going: it says the run is in progress, refreshes on its own and has a Refresh button. A file that is not complete yet is shown as still being written instead of a broken image.
 - **Automation Planner** uses the same dark theme colours as the rest of the app and selects the active project when it opens.
+- **Settings → Features without an AI key.** AI features that call your AI provider are marked **LLM-powered** and their switches are locked until the organization adds an AI API key; **Open AI Models** takes you to the tab where the key is added. **Flakiness & Stability Detective** is marked **Statistical + LLM** and can be turned on without a key: stability grades, the flaky test list and quarantine need none, only the written group analysis does.
+- **Docker image notice.** The dashboard no longer asks every project to configure a Docker image. The notice appears in the Run dialog, where an Agnox Hosted run is started, and the image can be entered there for a single run. Projects that report from their own CI or hold manual test cases never see it.
+- **Test case editor.** Description and Preconditions grow with their content and can be dragged taller. Every step shows **Action** and **Expected Result** labels above its fields.
+- **Automation Planner** scans manual test cases only and reports how many cases are already automated. A test case the AI leaves out of its ranking is still listed, with a default risk level.
+- **Ask AI** answers questions about test cycles (pass rates, items by status or folder), test case folders, severity, tags, stability grades and individual test results. When a question finds no data, the answer says what was searched instead of reporting zero.
 
 ### Fixed
+- Test cases imported into folders were all listed under **Uncategorized** when building a test cycle.
+- A test cycle could not be created from imported test cases whose steps have an action and no expected result.
+- Ask AI could not answer questions about test cycle results: it looked for fields that test cycles do not have.
 - Results could not be recorded in a manual test cycle, because nothing moved the cycle from PENDING to RUNNING.
 - Saving an automated test case no longer removes steps that have no expected result.
 
