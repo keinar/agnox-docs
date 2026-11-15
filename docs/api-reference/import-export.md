@@ -8,6 +8,8 @@ sidebar_position: 7
 
 Move test cases between Agnox, spreadsheets, other test management tools and your Playwright code.
 
+> **Migrating from Qase, TestRail, Xray or Zephyr?** Start with the step-by-step [Migrate & Export Test Cases](../core-features/migrate-test-cases.md) guide. This page is the field-level reference.
+
 In the dashboard, open **Test Cases**: **Export** offers every format below for the selected rows, else the open folder, else the whole project. **Import** (admins and developers) previews a file before anything is written.
 
 ## Export

@@ -51,6 +51,32 @@ List endpoints take `limit` (1–100, default 25; larger values are clamped to 1
 | 409 | `CONFLICT` | The cycle cannot take the run |
 | 429 | | Rate limited |
 
+## Rate limits
+
+Limits are counted per organization, so every key in an organization shares one budget, in one-minute windows:
+
+| Scope | Limit |
+|---|---|
+| All `/api/v1` endpoints | 100 requests per minute per organization |
+| `POST /api/v1/executions` (trigger a run) | Also 10 per minute per organization |
+| Failed authentication (missing or invalid key) | 30 per minute per client IP address |
+
+Responses within the limit carry these headers:
+
+| Header | Meaning |
+|---|---|
+| `X-RateLimit-Limit` | Requests allowed in the window |
+| `X-RateLimit-Remaining` | Requests left in the current window |
+| `X-RateLimit-Reset` | When the window resets (ISO 8601) |
+
+Over the limit, the API answers `429` with a body such as:
+
+```json
+{ "success": false, "error": "Too Many Requests", "message": "API rate limit exceeded. Please try again in a moment.", "retryAfter": 42, "limit": 100, "window": 60000 }
+```
+
+`retryAfter` is in seconds. Wait that long before retrying. Polling a run every few seconds, as `agnox trigger --wait` does every 5 seconds, stays well inside the limit.
+
 ## Endpoints
 
 | Method | Path | Description |
@@ -124,7 +150,7 @@ curl -X POST -H "x-api-key: $AGNOX_API_KEY" -H "content-type: application/json" 
 
 ## Tools built on this API
 
-- **MCP server** for Claude Code, Cursor and Windsurf: `npx -y @agnox/mcp-server`
-- **CLI**: `npx -p @agnox/mcp-server agnox --help`
+- [**MCP server**](../developer-tools/mcp-server.md) for Claude Code, Cursor, Claude Desktop and Windsurf: `npx -y @agnox/mcp-server`
+- [**`agnox` CLI**](../developer-tools/cli.md) for terminals and CI: `npx -p @agnox/mcp-server agnox --help`
 
-See the [package README](https://www.npmjs.com/package/@agnox/mcp-server) for configuration.
+Both ship in the [`@agnox/mcp-server`](https://www.npmjs.com/package/@agnox/mcp-server) npm package.

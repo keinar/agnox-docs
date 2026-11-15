@@ -132,6 +132,14 @@ const config: Config = {
               label: 'Playwright Reporter',
               to: '/docs/integrations/playwright-reporter',
             },
+            {
+              label: 'MCP Server',
+              to: '/docs/developer-tools/mcp-server',
+            },
+            {
+              label: 'Agnox CLI',
+              to: '/docs/developer-tools/cli',
+            },
           ],
         },
         {
