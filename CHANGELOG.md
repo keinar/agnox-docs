@@ -8,6 +8,10 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 ### Added
 - **Sample project (1-click demo).** A project with no runs shows a quickstart card: load sample data (12 runs, a failure cluster with its root cause, a quarantined flaky test and 12 test cases), copy the Playwright reporter setup with your project ID and a freshly generated API key, or import test cases / connect MCP. Sample runs are marked **Demo**, never count against run quotas and can be removed in one click. Loading the sample data also turns on the **Stability** page for the organization, so its failure clusters and quarantined test can be opened straight away.
 - **Public landing page** at `agnox.dev` for signed-out visitors, with the MCP server and CLI workflows, supported migration sources and plan pricing. Signed-in users still land on the dashboard.
+- **`@agnox/playwright-reporter` v2.4.0: test steps.** The titles of a test's top-level `test.step()` blocks are reported with its result and become the **Steps** of its automated test case. The steps follow the code: when a later passing run reports different steps, the test case is updated. Hooks, fixtures and Playwright API calls are not reported, so typed values never reach the catalog. Tests run on Agnox infrastructure get the same steps. A test without `test.step()` keeps an empty step list.
+- **Start Cycle.** A test cycle that has not started shows a **Start Cycle** button. Recording the first result also starts it, so a manual cycle no longer refuses results with "cycle is not in a RUNNING state".
+- **Stability page: Test health.** Stability grades (A–F) across the project, a **Quarantined Tests** list with one-click un-quarantine and a link to each test case, and a **Flaky Tests** list (grade C, D or F, worst first), above Recurring Failures and the AI group analysis. These lists need no AI key.
+- **Ask AI and Automation Planner previews.** Without an AI key, both pages stay in the sidebar and show how to connect your key (BYOK) with a link to Settings → AI Models, plus sample questions with answers and a sample automation plan. The samples make no AI call.
 
 ### Changed
 - **Artifacts tab.** A run's screenshots, videos and traces are grouped by test, each group showing the test's status and file counts, with a **Run-Level Artifacts** group for the rest. Search by test or file name and filter by type (All, Screenshots, Videos, Traces). Groups collapse, and a large run opens with only the first group expanded.
@@ -15,6 +19,12 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 - **Test cycle report.** The report follows the light or dark theme (with a toggle on the page) and shows the cycle's details, a progress bar by outcome (Passed, Failed, Blocked, Untested), summary cards and a test breakdown table. A skipped test is reported as Blocked. Printing always uses the light theme.
 - **Long text.** Test titles in drawers and lists wrap to two lines, and any title, path or error that is still cut off shows in full on hover, without delay.
 - **In-app explanations.** An info icon explains Agnox Hosted, External CI, Smart PR, manual and CI test cycles, recurring failures, the stability score (A–F) and quarantine where they appear.
+- **Artifacts of a run in progress.** The Artifacts tab is available while a run is still going: it says the run is in progress, refreshes on its own and has a Refresh button. A file that is not complete yet is shown as still being written instead of a broken image.
+- **Automation Planner** uses the same dark theme colours as the rest of the app and selects the active project when it opens.
+
+### Fixed
+- Results could not be recorded in a manual test cycle, because nothing moved the cycle from PENDING to RUNNING.
+- Saving an automated test case no longer removes steps that have no expected result.
 
 ## [3.30.0] — 2026-11-12
 
