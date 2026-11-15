@@ -3,6 +3,19 @@
 Customer-facing release notes for the Agnox platform and the `@agnox/playwright-reporter` package.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Added
+- **Sample project (1-click demo).** A project with no runs shows a quickstart card: load sample data (12 runs, a failure cluster with its root cause, a quarantined flaky test and 12 test cases), copy the Playwright reporter setup with your project ID and a freshly generated API key, or import test cases / connect MCP. Sample runs are marked **Demo**, never count against run quotas and can be removed in one click. Loading the sample data also turns on the **Stability** page for the organization, so its failure clusters and quarantined test can be opened straight away.
+- **Public landing page** at `agnox.dev` for signed-out visitors, with the MCP server and CLI workflows, supported migration sources and plan pricing. Signed-in users still land on the dashboard.
+
+### Changed
+- **Artifacts tab.** A run's screenshots, videos and traces are grouped by test, each group showing the test's status and file counts, with a **Run-Level Artifacts** group for the rest. Search by test or file name and filter by type (All, Screenshots, Videos, Traces). Groups collapse, and a large run opens with only the first group expanded.
+- **Dashboard layout.** Execution source (All, Agnox Hosted, External CI) sits under the KPI cards; status, environment, date and group filters share one toolbar row with the run count, the view toggle and the Columns menu. Trigger and CI badges are neutral, so a row's status stands out.
+- **Test cycle report.** The report follows the light or dark theme (with a toggle on the page) and shows the cycle's details, a progress bar by outcome (Passed, Failed, Blocked, Untested), summary cards and a test breakdown table. A skipped test is reported as Blocked. Printing always uses the light theme.
+- **Long text.** Test titles in drawers and lists wrap to two lines, and any title, path or error that is still cut off shows in full on hover, without delay.
+- **In-app explanations.** An info icon explains Agnox Hosted, External CI, Smart PR, manual and CI test cycles, recurring failures, the stability score (A–F) and quarantine where they appear.
+
 ## [3.30.0] — 2026-11-12
 
 ### Added

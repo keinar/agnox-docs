@@ -10,6 +10,18 @@ Connect your test automation project to Agnox and run your first test in minutes
 
 ---
 
+## Try It First: Sample Project
+
+A new project with no runs shows a **Get started in 60 seconds** card on the dashboard, with three paths:
+
+1. **Load sample data.** One click fills the project with 12 sample runs, a failure cluster with a pre-written root-cause analysis, one auto-quarantined flaky test and 12 test cases. Sample runs are marked **Demo**, never count against your run quotas and are not removed by data retention. Remove them at any time with **Remove sample data** in the banner above the run list; your own runs and test cases are not touched. Admins and developers can load and remove sample data. Loading it also turns on the **Stability** page (the Flakiness Detective feature) for your organization, so you can open its failure clusters and quarantined test straight away; an admin can turn it off again under **Settings → Features**.
+2. **Report your first Playwright run.** The card shows the reporter setup with your project ID already filled in, and **Generate API key** creates a key and puts it into the snippet. The key is shown only once.
+3. **Import test cases or connect MCP.** Open the importer (Qase, TestRail, Xray, Zephyr Scale, CSV/JSON), or copy the command that connects Claude Code or Cursor to this project.
+
+The card disappears once the project has its first run.
+
+---
+
 ## Choose Your Integration Mode
 
 Agnox supports two distinct ways to run and observe your tests:
