@@ -2,6 +2,9 @@ import { themes as prismThemes } from 'prism-react-renderer';
 import type { Config } from '@docusaurus/types';
 import type * as Preset from '@docusaurus/preset-classic';
 
+/** Must match docs/playbooks/_category_.json → label. */
+const PLAYBOOKS_LABEL = 'Engineering Playbooks';
+
 const config: Config = {
   title: 'Agnox',
   tagline: 'The AI Quality Orchestrator: Unified test execution, manual QA workflows, and five AI-powered features in one platform.',
@@ -53,6 +56,13 @@ const config: Config = {
         docs: {
           path: '../../docs',
           sidebarPath: './sidebars.ts',
+          // The playbooks have their own sidebar (sidebars.ts → playbooksSidebar),
+          // so the root-generated docs sidebar leaves the playbooks folder out.
+          async sidebarItemsGenerator({ defaultSidebarItemsGenerator, ...args }) {
+            const items = await defaultSidebarItemsGenerator(args);
+            if (args.item.dirName !== '.') return items;
+            return items.filter((item) => !(item.type === 'category' && item.label === PLAYBOOKS_LABEL));
+          },
         },
         blog: false,
         theme: {
@@ -104,6 +114,12 @@ const config: Config = {
           position: 'left',
         },
         {
+          type: 'docSidebar',
+          sidebarId: 'playbooksSidebar',
+          position: 'left',
+          label: 'Playbooks',
+        },
+        {
           href: 'https://github.com/keinar/Agnostic-Automation-Center',
           label: 'GitHub',
           position: 'right',
@@ -139,6 +155,23 @@ const config: Config = {
             {
               label: 'Agnox CLI',
               to: '/docs/developer-tools/cli',
+            },
+          ],
+        },
+        {
+          title: 'Engineering Playbooks',
+          items: [
+            {
+              label: 'Scalable Playwright Architecture',
+              to: '/docs/playbooks/scalable-playwright-architecture',
+            },
+            {
+              label: 'Agentic QA Workflow (MCP)',
+              to: '/docs/playbooks/agentic-qa-workflow-mcp',
+            },
+            {
+              label: 'Flakiness Governance',
+              to: '/docs/playbooks/flakiness-governance-at-scale',
             },
           ],
         },

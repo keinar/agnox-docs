@@ -6,7 +6,7 @@ sidebar_position: 7
 
 # Automation Planner
 
-The **Automation Planner** (Phase 6 of the AI Quality Orchestrator) bridges the gap between manual QA work and automation engineering. It analyses your existing manual test case library, assigns risk-based priority scores, and generates a copy-paste-ready **Markdown automation strategy document** formatted for direct use in Cursor, GitHub Copilot, or any IDE AI assistant.
+The **Automation Planner** (Phase 6 of the AI Quality Orchestrator) bridges the gap between manual QA work and automation engineering. It analyses your existing manual test case library, assigns risk-based priority scores, and generates an **Agent Implementation Prompt** for coding agents such as Claude Code and Cursor, Playwright spec scaffolds, and an automation strategy — grounded in your product spec and repository conventions.
 
 **Feature flag:** `aiFeatures.automationPlanner` — toggle in **Settings → Features → AI Features**.
 
@@ -26,9 +26,9 @@ Stage 1 — Metadata Scan (fast, cheap)
         ↓ User selects up to 30 tests ↓
 
 Stage 2 — Deep Dive (on demand, for selected tests only)
-  POST /api/ai/automation-planner/generate
-  ↓ Fetches full step data ONLY for selected tests
-  ↓ LLM generates a complete Markdown automation strategy document
+  POST /api/ai/automation-planner/plan
+  ↓ Fetches full step data ONLY for selected tests (+ optional product spec and repo context)
+  ↓ LLM generates the strategy and spec scaffolds; Agnox builds the agent prompt
   ↓ Saved to your plan history for future retrieval
 ```
 
@@ -55,33 +55,58 @@ After scanning, tests are displayed grouped by suite. Each group and each indivi
 
 A one-sentence LLM rationale is shown for each suite group.
 
-### 3. Select Tests and Generate
+### 3. Select Tests and Add Context
 
-Check the tests you want to automate (up to 30). A sticky bottom bar appears showing the selection count. Click **Generate Plan** to open the Artifact Modal.
+Check the tests you want to automate (up to 30). A sticky bottom bar appears showing the selection count. Click **Generate Plan** to open the plan dialog.
 
-In the modal, choose your **framework** (Playwright, Cypress, Pytest, Vitest, Jest, WebdriverIO) and **design pattern** (Page Object, Screenplay, Fixture, Fluent, Data-Driven), then click **Generate**.
+Choose your **framework** (Playwright, Cypress, Pytest, Vitest, Jest, WebdriverIO) and **design pattern** (Page Object, Screenplay, Fixture, Fluent, Data-Driven). Then, optionally, give the planner context in two collapsible sections:
 
-The LLM performs a deep dive on the full step data for your selected tests only and produces a Markdown document containing:
+**Product Spec & Requirements Context**
+- Upload a spec file (`.md`, `.txt` or `.json`) or paste product requirements, user stories or acceptance criteria (up to 30,000 characters).
+- The planner uses it to fill in expected results that the manual steps leave vague, and to name things the way the product does.
+- The spec text is sent to the model for this plan only. It is **not** saved with the plan.
 
-1. **Executive Summary** — what's being automated, business value, coverage improvement estimate
-2. **Prerequisites & Environment Setup** — install commands, environment variables, test data notes
-3. **Recommended Folder & File Structure** — framework-specific directory layout
-4. **Test Coverage Map** — table of suite, test title, priority, and automation notes
-5. **Implementation Notes** — per-suite strategy, tricky assertions, shared fixtures
-6. **Master AI Coding Prompt** — a single fenced block you paste into Cursor or GitHub Copilot to scaffold the full test suite
+**Repository & Architecture Context**
+- **Repository** — `owner/repo` or a GitHub URL.
+- **Base URL**, **Auth fixture** (e.g. `loggedInPage` or a storageState file), **Page Objects folder**, and free-text **folder & fixture conventions**.
+- **Read from GitHub** shows the repository's top-level tree and its `playwright.config` without an AI call. Tick **Include … when generating** to send that snapshot with the plan. Agnox uses the GitHub integration's token when the organization has one, and GitHub's public API otherwise; private repositories need the integration.
+- The repository fields are remembered per project in your browser.
 
-### 4. Copy or Download
+Product spec text and repository files are passed to the model as reference data in delimited blocks, never as instructions.
 
-Use the **Copy** button (clipboard icon) or **Download as .md** to save the artifact. The plan is also automatically saved to your history.
+### 4. Use the Output
+
+Click **Generate Plan**. The LLM performs a deep dive on the full step data for your selected tests only, and the result opens in three tabs:
+
+**🤖 Agent Implementation Prompt (Claude Code / Cursor)** — the primary output. A complete, copy-ready prompt for a coding agent working in your test repository. It tells the agent to:
+
+1. inspect the repository's existing Playwright config, fixtures and Page Objects first, and reuse them;
+2. implement each selected case as one test titled `<test case key>: <title>`, following your conventions and the product spec;
+3. wrap every manual step in `await test.step('<step>', async () => { ... })`, so [`@agnox/playwright-reporter`](../integrations/playwright-reporter.md) reports step-level progress back to Agnox;
+4. run the new specs locally (three repeats) and fix them without weakening assertions;
+5. call the [Agnox MCP](../developer-tools/mcp-server.md) tool `sync_test_cases` (the JSON payload is included) to link the new specs to the catalog.
+
+Click **Copy Prompt for Claude Code / Cursor** and paste it into Claude Code, Cursor or Windsurf at the root of your test repository.
+
+**📄 Playwright .spec.ts Scaffolds** — one code scaffold per spec file, with **Copy** and **Download** buttons.
+
+**📊 Automation Strategy & ROI** — executive summary, risk breakdown and execution order, environment and architecture recommendations, a coverage map and implementation notes.
+
+**Copy full document** copies the whole Markdown plan. Every plan is saved to your history automatically.
+
+For the end-to-end workflow with coding agents, see [The 2027 Agentic QA Workflow](../playbooks/agentic-qa-workflow-mcp.md).
+
+### Without an AI key
+
+Organizations without their own AI key see a sample plan for an example web shop instead. Select tests and click **Show the sample plan** to see the same three tabs (agent prompt, spec scaffold and strategy). No AI call is made and none of your data is read.
 
 ---
 
 ## Plan History
 
-Click **History** in the page header to open the saved plans sidebar. Click any previous plan to re-open its Markdown artifact — no LLM call is made, it loads instantly from your saved history.
+Click **History** in the page header to open the saved plans sidebar. Click any previous plan to re-open it in the same tabs — no LLM call is made, it loads instantly from your saved history. Plans saved before the agent prompt was introduced open as a single Markdown document.
 
 ---
-
 ## Targeted Discovery (Filters)
 
 Use the filter bar to narrow a scan before it runs:
@@ -98,11 +123,12 @@ Filters are shown in a banner on the results screen when active. The `/filter-op
 | Method | Path | Description |
 |--------|------|-------------|
 | `POST` | `/api/ai/automation-planner/discover` | Stage 1: metadata scan + LLM risk stratification |
-| `POST` | `/api/ai/automation-planner/generate` | Stage 2: deep fetch + Markdown artifact generation |
+| `POST` | `/api/ai/automation-planner/plan` | Stage 2: deep fetch + agent prompt, spec scaffolds and strategy (`/generate` is an alias) |
+| `POST` | `/api/ai/automation-planner/repo-context` | Top-level tree and `playwright.config` of a GitHub repository (`{ projectId, url }`, no AI call) |
 | `GET` | `/api/ai/automation-planner/history` | Last 20 saved plans for the org (optional `?projectId=`) |
 | `GET` | `/api/ai/automation-planner/filter-options` | Distinct suites and tags for a project (`?projectId=` required) |
 
-All endpoints require standard JWT auth. `discover` and `generate` require `aiFeatures.automationPlanner === true`.
+All endpoints require standard JWT auth. `discover`, `plan` and `repo-context` require `aiFeatures.automationPlanner === true`.
 
 **Selection limit:** A maximum of 30 tests can be submitted per generation. Requests exceeding this return HTTP 400.
 
