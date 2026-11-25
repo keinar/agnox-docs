@@ -6,7 +6,7 @@ sidebar_position: 1
 
 # Agnox MCP Server
 
-`@agnox/mcp-server` connects Agnox to AI coding assistants over the [Model Context Protocol](https://modelcontextprotocol.io). With it, Claude Code, Cursor, Claude Desktop or Windsurf can:
+`@agnox/mcp-server` connects Agnox to AI coding assistants over the [Model Context Protocol](https://modelcontextprotocol.io). With it, Claude Code, VS Code (GitHub Copilot), Cursor, Claude Desktop or Windsurf can:
 
 - read why a run failed, including the page URL, console and network errors, test ids and a DOM snapshot captured at the moment of failure
 - fix a broken locator using that context
@@ -90,6 +90,74 @@ Create `.cursor/mcp.json` in the project, or `~/.cursor/mcp.json` to enable it f
 ```
 
 Then open **Cursor Settings → MCP** and check that `agnox` shows a green status.
+
+### VS Code / GitHub Copilot
+
+VS Code (1.102 or later) runs MCP servers for GitHub Copilot in agent mode. There are three ways to add Agnox.
+
+**One command.** `code --add-mcp` adds the server to your VS Code user profile:
+
+```bash
+code --add-mcp '{"name":"agnox","type":"stdio","command":"npx","args":["-y","@agnox/mcp-server@latest"],"env":{"AGNOX_PROJECT_ID":"<project id>"}}'
+```
+
+On Windows, `code` is a batch file, so PowerShell strips the inner quotes. Escape them:
+
+```powershell
+$agnox = '{"name":"agnox","type":"stdio","command":"npx","args":["-y","@agnox/mcp-server@latest"],"env":{"AGNOX_PROJECT_ID":"<project id>"}}'
+code --add-mcp ($agnox -replace '"', '\"')
+```
+
+The dashboard's **Get started in 60 seconds** card has the same command with your project id filled in, and an **Install in VS Code** button that opens the same configuration through a `vscode:mcp/install?…` link, so you can review it before you install.
+
+The command and the link deliberately carry no API key: a key does not belong in a shell history or a URL. Save the key once with the CLI, and the server reads it from `~/.agnox/config.json`:
+
+```bash
+npx -p @agnox/mcp-server agnox login --api-key "<your key>"
+```
+
+**Command Palette.** Run **MCP: Add Server**, pick **NPM Package**, enter `@agnox/mcp-server@latest`, name the server `agnox`, and choose whether it is global or for this workspace. Then add the `AGNOX_PROJECT_ID` variable to the generated entry. VS Code-managed config (`.vscode/mcp.json` or the user profile) uses a top-level `servers` key and can prompt for the key and store it securely:
+
+```json
+{
+  "inputs": [
+    { "type": "promptString", "id": "agnox-api-key", "description": "Agnox API key", "password": true }
+  ],
+  "servers": {
+    "agnox": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@agnox/mcp-server@latest"],
+      "env": {
+        "AGNOX_API_KEY": "${input:agnox-api-key}",
+        "AGNOX_PROJECT_ID": "<project id>"
+      }
+    }
+  }
+}
+```
+
+**Portable `.mcp.json`.** To share one setup with your team and across tools, commit a `.mcp.json` at the repository root. Newer VS Code builds read it for GitHub Copilot, and it is the same file and format that Claude Code reads. It uses `mcpServers` (not `servers`) and doesn't support `inputs` or `envFile`, so reference the key through an environment variable that each developer sets:
+
+```json
+{
+  "mcpServers": {
+    "agnox": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@agnox/mcp-server@latest"],
+      "env": {
+        "AGNOX_API_KEY": "${AGNOX_API_KEY}",
+        "AGNOX_PROJECT_ID": "<project id>"
+      }
+    }
+  }
+}
+```
+
+A developer who has run `agnox login` can leave `AGNOX_API_KEY` out entirely.
+
+Open Copilot Chat in **Agent** mode and select the tools icon (or run **MCP: List Servers**) to confirm that `agnox` is running and its tools are listed.
 
 ### Claude Desktop
 

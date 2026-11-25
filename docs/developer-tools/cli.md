@@ -10,6 +10,8 @@ sidebar_position: 2
 
 It ships in the same npm package as the [MCP server](./mcp-server.md), talks only to the [Public API v1](../api-reference/public-api-v1.md), and needs **Node.js 20 or later**.
 
+> **Two packages, two jobs.** [`@agnox/agnox-cli`](https://www.npmjs.com/package/@agnox/agnox-cli) (`npx @agnox/agnox-cli@latest init` / `push`) only scaffolds and pushes the Docker image for **Hosted** test runs. Everything on this page, the `agnox` command for the API and the MCP server, comes from **`@agnox/mcp-server`**. If you report runs from your own CI with the Playwright reporter, you don't need `@agnox/agnox-cli` at all.
+
 ---
 
 ## Installation
