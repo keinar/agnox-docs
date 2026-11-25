@@ -181,7 +181,7 @@ The [`agnox` CLI](../developer-tools/cli.md) writes one spec per top-level folde
 
 ```bash
 export AGNOX_API_KEY="<your key>"
-npx -p @agnox/mcp-server agnox export-specs --out tests/generated --project <project id>
+npx -y @agnox/mcp-server@latest export-specs --out tests/generated --project <project id>
 # wrote tests/generated/checkout.spec.ts
 # wrote tests/generated/login.spec.ts
 # Exported 2 spec files to tests/generated

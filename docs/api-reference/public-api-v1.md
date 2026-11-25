@@ -151,6 +151,6 @@ curl -X POST -H "x-api-key: $AGNOX_API_KEY" -H "content-type: application/json" 
 ## Tools built on this API
 
 - [**MCP server**](../developer-tools/mcp-server.md) for Claude Code, Cursor, Claude Desktop and Windsurf: `npx -y @agnox/mcp-server`
-- [**`agnox` CLI**](../developer-tools/cli.md) for terminals and CI: `npx -p @agnox/mcp-server agnox --help`
+- [**`agnox` CLI**](../developer-tools/cli.md) for terminals and CI: `npx -y @agnox/mcp-server@latest --help`
 
 Both ship in the [`@agnox/mcp-server`](https://www.npmjs.com/package/@agnox/mcp-server) npm package.
