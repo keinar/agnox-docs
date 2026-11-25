@@ -2,6 +2,9 @@ import { themes as prismThemes } from 'prism-react-renderer';
 import type { Config } from '@docusaurus/types';
 import type * as Preset from '@docusaurus/preset-classic';
 
+/** The docs plugin's own default exclude list, which setting `exclude` replaces. */
+const DEFAULT_DOCS_EXCLUDE = ['**/_*.{js,jsx,ts,tsx,md,mdx}', '**/_*/**', '**/*.test.{js,jsx,ts,tsx}', '**/__tests__/**'];
+
 /** Must match docs/playbooks/_category_.json → label. */
 const PLAYBOOKS_LABEL = 'Engineering Playbooks';
 
@@ -56,6 +59,10 @@ const config: Config = {
         docs: {
           path: '../../docs',
           sidebarPath: './sidebars.ts',
+          // Internal design specs and plans live in internal-docs/, never here. The
+          // superpowers skills write specs to docs/superpowers/ by default, so keep
+          // that folder out of the public site even if one lands there by mistake.
+          exclude: [...DEFAULT_DOCS_EXCLUDE, 'superpowers/**'],
           // The playbooks have their own sidebar (sidebars.ts → playbooksSidebar),
           // so the root-generated docs sidebar leaves the playbooks folder out.
           async sidebarItemsGenerator({ defaultSidebarItemsGenerator, ...args }) {
