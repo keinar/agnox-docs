@@ -36,6 +36,8 @@ Agnox supports two distinct ways to run and observe your tests:
 > **Not sure which to choose?** Start with the **Passive Reporter** (Option C below) if you already run Playwright in a CI pipeline — it requires zero infrastructure changes.
 >
 > Each mode has its own monthly quota on your plan: **Agnox Hosted Runs** and **External CI Runs**. See [Plans & Quotas →](../core-features/organization#billing--plans).
+>
+> **Where is my data stored?** See [Security & Data Storage →](./security-and-data-storage) for what each mode sends to Agnox, where results and artifacts are kept, and for how long.
 
 ---
 
@@ -287,3 +289,4 @@ Rebuild with `docker buildx build --platform linux/amd64,linux/arm64 ... --push`
 - [Playwright Reporter →](../integrations/playwright-reporter) — full reporter configuration reference
 - [Docker Setup →](../integrations/docker-setup) — detailed container protocol
 - [AI Features →](../ai-capabilities/configuration) — enable the AI Quality Orchestrator
+- [Security & Data Storage →](./security-and-data-storage) — what is stored, where, and for how long

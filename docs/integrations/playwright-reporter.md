@@ -89,6 +89,8 @@ export default defineConfig({
 3. Screenshots, videos and traces of failed tests are uploaded in the background.
 4. When Playwright finishes, the run is closed with its final status.
 
+Your tests run in your own CI or on your laptop, and the reporter doesn't upload your repository. It sends results, log lines, failure context and (by default) failed tests' attachments over HTTPS. See [Security & Data Storage →](../getting-started/security-and-data-storage) for exactly what is sent and how long it is kept.
+
 Runs appear on the Dashboard under the **External CI** source filter, with the branch, commit, PR number and CI job link detected automatically on **GitHub Actions**, **GitLab CI**, **Azure DevOps** and **Jenkins** (any other `CI=true` environment is recorded as generic).
 
 ### Test Cycles are opt-in
@@ -220,5 +222,6 @@ The package is not installed in the environment that runs Playwright. Make sure 
 
 - [Integrations Overview →](./overview)
 - [Quick Start →](../getting-started/quick-start)
+- [Security & Data Storage →](../getting-started/security-and-data-storage)
 - [GitHub Actions & CI/CD →](./github-actions)
 - [Docker Container Setup (Agnox Hosted) →](./docker-setup)
