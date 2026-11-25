@@ -6,7 +6,7 @@ sidebar_position: 1
 
 # Native Playwright Reporter
 
-Stream live Playwright results from your existing CI pipeline (or your laptop) straight to the Agnox dashboard — **no Docker image required**. Runs reported this way are **External CI runs**.
+Stream live Playwright results from your existing CI pipeline (or your laptop) straight to the Agnox dashboard — **no Docker image required**. Runs reported from CI are **External CI runs**; runs reported from a developer machine are **Local runs**, kept out of your quality metrics (see [Local vs External CI runs](#local-vs-external-ci-runs)).
 
 ---
 
@@ -53,6 +53,7 @@ export default defineConfig({
       // uploadArtifacts: 'failed-only',  // 'failed-only' (default) | 'all' | 'none'
       // createCycle: true,               // also create a Test Cycle for this run
       // cycleId: '<cycle id>',           // add this run to an existing Test Cycle
+      // ciOnly: true,                    // report only from CI, never from a laptop
       // debug: true,                     // log reporter activity to stderr
     }],
   ],
@@ -71,6 +72,8 @@ export default defineConfig({
 | `uploadArtifacts` | `'failed-only' \| 'all' \| 'none'` | No | `'failed-only'` | Which tests' screenshots, videos and traces are uploaded. See [Artifacts](#artifacts-screenshots-videos-traces). |
 | `createCycle` | boolean | No | `false` | Also create a Test Cycle for this run. |
 | `cycleId` | string | No | — | Add the run to an existing Test Cycle of the same project. Takes precedence over `createCycle`. |
+| `ciOnly` | boolean | No | `false` | Report only from CI. Outside CI the reporter does nothing and prints one line. Also enabled by `AGNOX_CI_ONLY=true`; `AGNOX_REPORT=true` overrides it. |
+| `source` | `'external-ci' \| 'local'` | No | detected | Overrides the detected source. `'external_ci'` is accepted too. |
 | `flushIntervalMs` | number | No | `2000` | How often buffered events are sent. |
 | `maxBatchSize` | number | No | `50` | Events per batch before an early flush. |
 | `debug` | boolean | No | `false` | Log reporter activity to stderr. |
@@ -91,7 +94,49 @@ export default defineConfig({
 
 Your tests run in your own CI or on your laptop, and the reporter doesn't upload your repository. It sends results, log lines, failure context and (by default) failed tests' attachments over HTTPS. See [Security & Data Storage →](../getting-started/security-and-data-storage) for exactly what is sent and how long it is kept.
 
-Runs appear on the Dashboard under the **External CI** source filter, with the branch, commit, PR number and CI job link detected automatically on **GitHub Actions**, **GitLab CI**, **Azure DevOps** and **Jenkins** (any other `CI=true` environment is recorded as generic).
+CI runs appear on the Dashboard under the **External CI** source filter, with the branch, commit, PR number and CI job link detected automatically on **GitHub Actions**, **GitLab CI**, **Azure DevOps** and **Jenkins**. Runs from other CI platforms are still External CI runs, without that context.
+
+---
+
+## Local vs External CI runs
+
+From **v2.5.0** the reporter tells a developer machine from a CI pipeline, so debugging on your laptop never skews your project's metrics.
+
+**Detection.** A run is an **External CI** run when any of these environment variables is set (to anything except an empty string, `0` or `false`): `CI`, `GITHUB_ACTIONS`, `GITLAB_CI`, `JENKINS_URL`, `TF_BUILD`, `CIRCLECI`, `BITBUCKET_BUILD_NUMBER`, `BUILDKITE`, `TEAMCITY_VERSION`, `TRAVIS`. Otherwise it is a **Local** run. Set `source: 'external-ci'` or `source: 'local'` to override the detection.
+
+**Local runs are excluded from every metric:** Pass Rate and the other KPI cards, Stability Score, trend charts, flaky-test detection, auto-quarantine, failure clusters and Smart PR history. Their tests are still linked to your test cases, and their artifacts are uploaded as usual.
+
+**On the Dashboard,** local runs carry a **Local** badge and are hidden from the default view. Pick **Local** under **Execution source** to see them. A brand-new project whose only runs are local shows them anyway, with a banner, so your first run from the [Quick Start](../getting-started/quick-start) appears right away. Once the first CI or hosted run arrives, local runs leave the default view.
+
+**Quota.** Local runs count toward your plan's **External CI Runs**, like CI runs.
+
+### Report only from CI
+
+To stop local runs from being reported at all, turn on `ciOnly`:
+
+```typescript
+['@agnox/playwright-reporter', {
+  apiKey:    process.env.AGNOX_API_KEY!,
+  projectId: process.env.AGNOX_PROJECT_ID!,
+  ciOnly: true,
+}],
+```
+
+or set `AGNOX_CI_ONLY=true` in your shell profile. Outside CI the reporter then prints one line and does nothing else:
+
+```
+[agnox] Skipped reporting: ciOnly is on and this is not a CI run. Set AGNOX_REPORT=true to report this run.
+```
+
+To report one local run anyway (for example, to check your setup), run it with `AGNOX_REPORT=true`:
+
+```bash
+AGNOX_REPORT=true npx playwright test
+```
+
+`ciOnly` is off by default so that a first run from your laptop shows up in Agnox without extra configuration.
+
+> **Upgrading from 2.4.x or earlier:** older versions reported every run, laptop runs included, as External CI. Runs already recorded keep that source. Agnox servers that predate local runs accept 2.5.0 too: the reporter then records the run as External CI.
 
 ### Test Cycles are opt-in
 
@@ -191,7 +236,10 @@ The worst case is a run that does not appear in Agnox. Green builds stay green.
 Use the **Source** filter on the Dashboard to tell runs apart:
 
 - **Agnox Hosted** — runs executed in an Agnox container from your Docker image. They count toward your plan's **Agnox Hosted Runs**.
-- **External CI** — runs reported by `@agnox/playwright-reporter`. They count toward your plan's **External CI Runs**.
+- **External CI** — runs reported by `@agnox/playwright-reporter` from a CI pipeline. They count toward your plan's **External CI Runs**.
+- **Local** — runs reported by `@agnox/playwright-reporter` from a developer machine. Hidden from **All** once the project has CI or hosted runs, excluded from every metric, and counted toward **External CI Runs**.
+
+**All** shows hosted and External CI runs.
 
 See [Plans & Quotas →](../core-features/organization#billing--plans).
 
@@ -204,6 +252,8 @@ See [Plans & Quotas →](../core-features/organization#billing--plans).
 1. **`dotenv/config` must be the first line** of `playwright.config.ts` when credentials come from a `.env` file.
 2. **Do not set `baseUrl` to your application's URL.** The reporter's `baseUrl` is the Agnox API (`https://api.agnox.dev`) and is already the default. Your app's URL goes in Playwright's `use.baseURL`.
 3. Temporarily set `debug: true` to see what the reporter is doing.
+4. A run from your laptop is a **Local** run: once the project has CI or hosted runs, pick **Local** under **Execution source** to see it.
+5. If the reporter printed `Skipped reporting: ciOnly is on`, `ciOnly` or `AGNOX_CI_ONLY=true` is set: run with `AGNOX_REPORT=true` to report this run.
 
 ### `Cannot find module '@agnox/playwright-reporter'`
 
