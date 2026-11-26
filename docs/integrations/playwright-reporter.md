@@ -8,6 +8,8 @@ sidebar_position: 1
 
 Stream live Playwright results from your existing CI pipeline (or your laptop) straight to the Agnox dashboard — **no Docker image required**. Runs reported from CI are **External CI runs**; runs reported from a developer machine are **Local runs**, kept out of your quality metrics (see [Local vs External CI runs](#local-vs-external-ci-runs)).
 
+> Want Agnox to run the tests for you instead? See [Agnox Hosted](./agnox-hosted) for how the two execution models compare.
+
 ---
 
 ## Installation
@@ -235,7 +237,7 @@ The worst case is a run that does not appear in Agnox. Green builds stay green.
 
 Use the **Source** filter on the Dashboard to tell runs apart:
 
-- **Agnox Hosted** — runs executed in an Agnox container from your Docker image. They count toward your plan's **Agnox Hosted Runs**.
+- **Agnox Hosted** — runs executed in an Agnox container from your Docker image (see [Agnox Hosted](./agnox-hosted)). They count toward your plan's **Agnox Hosted Runs**.
 - **External CI** — runs reported by `@agnox/playwright-reporter` from a CI pipeline. They count toward your plan's **External CI Runs**.
 - **Local** — runs reported by `@agnox/playwright-reporter` from a developer machine. Hidden from **All** once the project has CI or hosted runs, excluded from every metric, and counted toward **External CI Runs**.
 
@@ -274,4 +276,5 @@ The package is not installed in the environment that runs Playwright. Make sure 
 - [Quick Start →](../getting-started/quick-start)
 - [Security & Data Storage →](../getting-started/security-and-data-storage)
 - [GitHub Actions & CI/CD →](./github-actions)
+- [Agnox Hosted →](./agnox-hosted)
 - [Docker Container Setup (Agnox Hosted) →](./docker-setup)

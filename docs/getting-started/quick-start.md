@@ -33,7 +33,7 @@ Agnox supports two distinct ways to run and observe your tests:
 | **CI pipeline** | Optional (trigger via Dashboard, API, or CI webhook) | Required |
 | **Best for** | Full isolation, multi-framework, scheduled runs | Teams already running Playwright in GitHub Actions, GitLab CI, or locally |
 
-> **Not sure which to choose?** Start with the **Passive Reporter** (Option C below) if you already run Playwright in a CI pipeline — it requires zero infrastructure changes.
+> **Not sure which to choose?** Start with the **Passive Reporter** (Option C below) if you already run Playwright in a CI pipeline — it requires zero infrastructure changes. For a full comparison, and for running both models together, see [Agnox Hosted →](../integrations/agnox-hosted).
 >
 > Each mode has its own monthly quota on your plan: **Agnox Hosted Runs** and **External CI Runs**. See [Plans & Quotas →](../core-features/organization#billing--plans).
 >

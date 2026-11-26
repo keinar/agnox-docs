@@ -22,6 +22,8 @@ Agnox supports two integration modes — choose the one that fits your workflow:
 | **Requires Docker image** | Yes — push your image to Docker Hub | No — works with any existing Playwright setup |
 | **Best for** | Full isolation, multi-framework, scheduled runs | Teams already running Playwright in GitHub Actions, GitLab CI, or locally |
 
+> **Which one fits your team?** [Agnox Hosted →](../integrations/agnox-hosted) compares the two models side by side and shows how to use both together.
+
 ## Official Framework SDKs
 
 For teams using the External CI path, Agnox provides **official Adapters** for each major testing framework. Installing an Adapter is a single configuration-level change — **no individual test files are modified**.
